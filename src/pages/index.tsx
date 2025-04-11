@@ -1,12 +1,11 @@
-import Link from "next/link";
+import LayoutApp from "@/components/LayoutApp";
+import { Box } from "@mui/material";
 
 const hello = () => {
   return (
-    <>
-      <div>
-        <Link href="/maindashboard">Go to main</Link>
-      </div>
-    </>
+    <LayoutApp>
+      <Box>main this place we make topbar side bar and main area</Box>
+    </LayoutApp>
   );
 };
 
