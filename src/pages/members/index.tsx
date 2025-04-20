@@ -1,6 +1,22 @@
 import LayoutApp from "@/components/LayoutApp";
-import { Box, Button, TextField, Typography } from "@mui/material";
-import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addMembers } from "@/store/slices/memberSlice";
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
+import Link from "next/link";
 import { useState } from "react";
 
 interface User {
@@ -10,57 +26,54 @@ interface User {
 }
 
 export default function MembersPage() {
-  const router = useRouter();
-  const [newUser, setNewUser] = useState<User>({
+  const dispath = useAppDispatch();
+  const { members } = useAppSelector((state) => state.members);
+  const [newMember, setNewMember] = useState<User>({
     name: "",
     email: "",
     phone: "",
   });
 
-  const [errors, setErrors] = useState({
-    email: "",
-    phone: "",
-  });
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
+  const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
 
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  if (!members) {
+    return (
+      <LayoutApp>
+        <Box>404 Not Found</Box>
+      </LayoutApp>
+    );
+  }
 
-  const validatePhone = (phone: string) => {
-    const phoneRegex = /^[0-9]{11}$/; // Validates a 10-digit phone number
-    return phoneRegex.test(phone);
-  };
+  // Handle adding a new member
+  const handleAddMember = async () => {
+    const isValid =
+      newMember.name !== "" && newMember.email !== "" && newMember.phone !== "";
 
-  const handleOnClick = async () => {
-    let isValid = true;
-
-    if (!validateEmail(newUser.email)) {
-      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
-      isValid = false;
-    } else {
-      setErrors((prev) => ({ ...prev, email: "" }));
-    }
-
-    if (!validatePhone(newUser.phone)) {
-      setErrors((prev) => ({ ...prev, phone: "Invalid phone number format" }));
-      isValid = false;
-    } else {
-      setErrors((prev) => ({ ...prev, phone: "" }));
-    }
     if (isValid) {
-      console.log("add members");
-      console.log("user:", newUser);
+      const response = await fetch("http://localhost:3000/api/members", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newMember),
+      });
+      const dataFromServer = await response.json();
+      const { member } = dataFromServer;
+      dispath(addMembers(member));
+      setNewMember({ name: "", email: "", phone: "" }); // Reset form
     }
-
+  };
+  const handleDeleteMember = async () => {
     const response = await fetch("http://localhost:3000/api/members", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ ...newUser }),
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(memberToDelete),
     });
     const dataFromServer = await response.json();
-    const { member } = dataFromServer;
-    console.log("member:", member);
+    setOpenDelete(false);
   };
 
   return (
@@ -68,59 +81,113 @@ export default function MembersPage() {
       <main className="min-h-screen p-8 bg-white">
         <h1 className="text-2xl font-semibold mb-4">👤 Members</h1>
 
-        <Box
-          sx={{ display: "flex", flexDirection: "column", width: 350, p: 2 }}
-        >
-          <Typography>Add Members</Typography>
-          <TextField
-            sx={{ mb: 1 }}
-            variant="outlined"
-            label="Name"
-            onChange={(eve) =>
-              setNewUser({ ...newUser, name: eve.target.value })
-            }
-          />
-          <TextField
-            sx={{ mb: 1 }}
-            variant="outlined"
-            label="Email"
-            error={!!errors.email}
-            helperText={errors.email}
-            onChange={(eve) =>
-              setNewUser({ ...newUser, email: eve.target.value })
-            }
-          />
-          <TextField
-            sx={{ mb: 2 }}
-            variant="outlined"
-            label="Phone Number"
-            error={!!errors.phone}
-            helperText={errors.phone}
-            onChange={(eve) =>
-              setNewUser({ ...newUser, phone: eve.target.value })
-            }
-          />
-          <Box>
-            <Button
+        {/* Add Member Form */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Add Member
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+            <TextField
+              label="Name"
               variant="outlined"
-              sx={{ width: "fit-content" }}
-              onClick={() => router.push("/")}
-            >
-              Cancel
-            </Button>
+              value={newMember.name}
+              onChange={(e) =>
+                setNewMember({ ...newMember, name: e.target.value })
+              }
+            />
+            <TextField
+              label="Email"
+              variant="outlined"
+              value={newMember.email}
+              onChange={(e) =>
+                setNewMember({ ...newMember, email: e.target.value })
+              }
+            />
+            <TextField
+              label="Phone"
+              variant="outlined"
+              value={newMember.phone}
+              onChange={(e) =>
+                setNewMember({ ...newMember, phone: e.target.value })
+              }
+            />
             <Button
               variant="contained"
-              sx={{ width: "fit-content" }}
-              onClick={handleOnClick}
+              color="primary"
+              onClick={handleAddMember}
             >
-              Add member
+              Add Member
             </Button>
           </Box>
         </Box>
 
-        {/*         <Link href="/" className="text-blue-600 underline mt-4 inline-block">
-          ← Back to Dashboard
-        </Link> */}
+        {/* Members List */}
+        <Box
+          sx={{
+            maxHeight: "500px", // Set a fixed height for the table container
+            overflowY: "auto", // Enable vertical scrolling
+            border: "1px solid #ccc", // Optional: Add a border for better visibility
+            borderRadius: "4px",
+          }}
+        >
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Members List
+          </Typography>
+
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {members.map((member) => (
+                <TableRow key={member.id}>
+                  <TableCell>{member.name}</TableCell>
+                  <TableCell>{member.email}</TableCell>
+                  <TableCell>{member.phone}</TableCell>
+                  <TableCell>
+                    <Link href={`/members/${member.id}`}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        sx={{ mr: 1 }}
+                        /*                       onClick={() =>  handleEdit(member.id) }
+                         */
+                      >
+                        Edit
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outlined"
+                      color="error"
+                      /*                       onClick={() => handleDelete(member.id)}
+                       */
+                      onClick={() => {
+                        setOpenDelete(true);
+                        setMemberToDelete(member.id);
+                      }}
+                    >
+                      Delete
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
+
+        <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
+          <DialogTitle>Delete Member</DialogTitle>
+          <DialogContent>Are You sure You Want To Delete Member</DialogContent>
+          <DialogActions>
+            <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
+            <Button onClick={handleDeleteMember}>Yes</Button>
+          </DialogActions>
+        </Dialog>
       </main>
     </LayoutApp>
   );

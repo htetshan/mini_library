@@ -1,13 +1,37 @@
 import { Box } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import TopBarApp from "./TopBarApp";
 import SideBarApp from "./SideBarApp";
+import { useAppDispatch } from "@/store/hooks";
+import { setMembers } from "@/store/slices/memberSlice";
 
 interface Props {
   children: ReactNode;
 }
 
 const LayoutApp = ({ children }: Props) => {
+  const dispath = useAppDispatch();
+  // Fetch members from the server
+  useEffect(() => {
+    const fetchMembers = async () => {
+      try {
+        const response = await fetch(`${window.location.origin}/api/members`, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        });
+        const dataFromServer = await response.json();
+        const { members } = dataFromServer;
+        dispath(setMembers(members));
+      } catch (error) {
+        console.error("Failed to fetch members", error);
+      }
+    };
+
+    fetchMembers();
+  }, []); // ✅ Empty array means run once when component mounts
+
   return (
     <Box
       sx={{
