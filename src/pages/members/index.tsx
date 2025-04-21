@@ -1,6 +1,6 @@
 import LayoutApp from "@/components/LayoutApp";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addMembers } from "@/store/slices/memberSlice";
+import { addMembers, removeMembers } from "@/store/slices/memberSlice";
 import {
   Box,
   Button,
@@ -65,14 +65,19 @@ export default function MembersPage() {
     }
   };
   const handleDeleteMember = async () => {
-    const response = await fetch("http://localhost:3000/api/members", {
-      method: "DELETE",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(memberToDelete),
-    });
+    const response = await fetch(
+      `http://localhost:3000/api/members?id=${memberToDelete}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(memberToDelete),
+      }
+    );
     const dataFromServer = await response.json();
+    const { memberDeletedId } = dataFromServer;
+    dispath(removeMembers(memberDeletedId));
     setOpenDelete(false);
   };
 

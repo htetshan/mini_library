@@ -22,12 +22,14 @@ export const memeberSlice = createSlice({
     addMembers: (state, action: PayloadAction<Member>) => {
       state.members = [...state.members, action.payload];
     },
-    removeMembers: (state, action: PayloadAction<Member[]>) => {
-      state.members = action.payload;
-    },
     replaceMembers: (state, action: PayloadAction<Member>) => {
       state.members = state.members.map((item) =>
         item.id === action.payload.id ? action.payload : item
+      );
+    },
+    removeMembers: (state, action: PayloadAction<number>) => {
+      state.members = state.members.filter(
+        (item) => item.id !== action.payload
       );
     },
   },

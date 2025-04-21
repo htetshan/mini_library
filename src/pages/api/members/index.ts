@@ -45,14 +45,19 @@ export default async function handler(
 
     res.status(200).json({ updateMemberDb });
   } else if (method === "DELETE") {
-    const { memberToDelete } = req.body;
+    const memberToDelete = Number(req.query.id);
+
     const exist = await prisma.member.findFirst({
       where: { id: memberToDelete },
     });
     if (!exist) {
       return res.status(400).json({ error: "Member Not Found" });
     }
-    res.status(200).json({ error: " good" });
+    const memberDeleted = await prisma.member.delete({
+      where: { id: memberToDelete },
+    });
+    const memberDeletedId = memberDeleted.id;
+    res.status(200).json({ memberDeletedId });
   } else {
     res.setHeader("Allow", ["GET"]);
     res.status(405).end(`Method ${req.method} Not Allowed`);
