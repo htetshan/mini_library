@@ -1,9 +1,10 @@
 -- CreateTable
 CREATE TABLE "Book" (
     "id" SERIAL NOT NULL,
-    "title" TEXT NOT NULL,
-    "totalCopies" INTEGER NOT NULL,
-    "borrowedCopies" INTEGER NOT NULL DEFAULT 0,
+    "name" TEXT NOT NULL,
+    "author" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "imageUrl" TEXT NOT NULL,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
 );

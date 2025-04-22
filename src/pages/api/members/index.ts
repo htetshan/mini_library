@@ -41,7 +41,6 @@ export default async function handler(
       data: payload,
       where: { id },
     });
-    console.log(updateMemberDb);
 
     res.status(200).json({ updateMemberDb });
   } else if (method === "DELETE") {

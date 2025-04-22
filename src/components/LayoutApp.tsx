@@ -2,8 +2,8 @@ import { Box } from "@mui/material";
 import { ReactNode, useEffect } from "react";
 import TopBarApp from "./TopBarApp";
 import SideBarApp from "./SideBarApp";
-import { useAppDispatch } from "@/store/hooks";
-import { setMembers } from "@/store/slices/memberSlice";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { appFetchServer } from "@/store/slices/appSlice";
 
 interface Props {
   children: ReactNode;
@@ -11,8 +11,14 @@ interface Props {
 
 const LayoutApp = ({ children }: Props) => {
   const dispath = useAppDispatch();
+  const { init } = useAppSelector((state) => state.app);
   // Fetch members from the server
   useEffect(() => {
+    if (!init) {
+      dispath(appFetchServer());
+    }
+  }, []);
+  /*   useEffect(() => {
     const fetchMembers = async () => {
       try {
         const response = await fetch(`${window.location.origin}/api/members`, {
@@ -31,7 +37,7 @@ const LayoutApp = ({ children }: Props) => {
 
     fetchMembers();
   }, []); // ✅ Empty array means run once when component mounts
-
+ */
   return (
     <Box
       sx={{

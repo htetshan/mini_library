@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Book {
-  id             Int           @id @default(autoincrement())
-  title          String
-  totalCopies    Int
-  borrowedCopies Int           @default(0)
+    id       Int    @id @default(autoincrement())
+  name     String
+  author   String
+  category String
+  imageUrl String?
   transactions   Transaction[]
 }
 

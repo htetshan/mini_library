@@ -1,18 +1,195 @@
-// pages/books/index.tsx
+import { useState } from "react";
+import {
+  Box,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TextField,
+  Typography,
+} from "@mui/material";
 import LayoutApp from "@/components/LayoutApp";
-import Link from "next/link";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { addBook, removeBook } from "@/store/slices/bookSlice";
+import { useRouter } from "next/router";
+import DeleteDialog from "@/components/DeleteDialog";
 
 export default function BooksPage() {
+  const router = useRouter();
+  const dispatch = useAppDispatch();
+  const { books } = useAppSelector((state) => state.books);
+
+  const [newBook, setNewBook] = useState({
+    name: "",
+    author: "",
+    category: "",
+  });
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  /*   const [editBook, setEditBook] = useState<any>(null);
+   */
+  const [openDelete, setOpenDelete] = useState<boolean>(false);
+  const [bookToDelete, setBookToDelete] = useState<number | null>(null);
+
+  const handleAddBook = async () => {
+    const formData = new FormData();
+    formData.append("name", newBook.name);
+    formData.append("author", newBook.author);
+    formData.append("category", newBook.category);
+    if (selectedFile) formData.append("image", selectedFile);
+
+    const res = await fetch("/api/books", {
+      method: "POST",
+      body: formData,
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      dispatch(addBook(data.book));
+      setNewBook({ name: "", author: "", category: "" });
+      setSelectedFile(null);
+    } else {
+      console.error("Upload failed", data.error);
+    }
+  };
+  const handleUpdateBook = (id: number) => {
+    router.push(`/books/${id}`);
+  };
+
+  const handleDeleteBook = async () => {
+    if (bookToDelete !== null) {
+      const res = await fetch(`/api/books?id=${bookToDelete}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        dispatch(removeBook(bookToDelete));
+        setOpenDelete(false); // Close the dialog after deletion
+        setBookToDelete(null); // Reset the book to delete
+      } else {
+        console.error("Delete failed");
+      }
+    }
+  };
+
   return (
     <LayoutApp>
       <main className="min-h-screen p-8 bg-white">
-        <h1 className="text-2xl font-semibold mb-4">📖 Books</h1>
+        <Typography variant="h4" gutterBottom>
+          📚 Books
+        </Typography>
 
-        <p>This is where you can list, add, or manage books.</p>
+        {/* Add Book Form */}
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Add Book
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
+            <TextField
+              label="Name"
+              variant="outlined"
+              value={newBook.name}
+              onChange={(e) => setNewBook({ ...newBook, name: e.target.value })}
+            />
+            <TextField
+              label="Author"
+              variant="outlined"
+              value={newBook.author}
+              onChange={(e) =>
+                setNewBook({ ...newBook, author: e.target.value })
+              }
+            />
+            <TextField
+              label="Category"
+              variant="outlined"
+              value={newBook.category}
+              onChange={(e) =>
+                setNewBook({ ...newBook, category: e.target.value })
+              }
+            />
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+            />
+            <Button variant="contained" color="primary" onClick={handleAddBook}>
+              Add Book
+            </Button>
+          </Box>
+        </Box>
 
-        <Link href="/" className="text-blue-600 underline mt-4 inline-block">
-          ← Back to Dashboard
-        </Link>
+        {/* Books List */}
+        <Box>
+          <Typography variant="h6" sx={{ mb: 2 }}>
+            Books List
+          </Typography>
+          <Box
+            sx={{
+              maxHeight: "400px", // Set a fixed height for the table container
+              overflowY: "auto", // Enable vertical scrolling
+              border: "1px solid #ccc", // Optional: Add a border for better visibility
+              borderRadius: "4px", // Optional: Add rounded corners
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Image</TableCell>
+                  <TableCell>Name</TableCell>
+                  <TableCell>Author</TableCell>
+                  <TableCell>Category</TableCell>
+                  <TableCell>Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {books.map((book) => (
+                  <TableRow key={book.id}>
+                    <TableCell>
+                      <img
+                        src={book.imageUrl}
+                        alt={book.name}
+                        width={60}
+                        height={60}
+                        style={{ objectFit: "cover", borderRadius: "8px" }}
+                      />
+                    </TableCell>
+                    <TableCell>{book.name}</TableCell>
+                    <TableCell>{book.author}</TableCell>
+                    <TableCell>{book.category}</TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={() => handleUpdateBook(book.id)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outlined"
+                        color="error"
+                        onClick={() => {
+                          setOpenDelete(true);
+                          setBookToDelete(book.id);
+                        }}
+                      >
+                        Delete
+                      </Button>
+                      <DeleteDialog
+                        openDelete={openDelete}
+                        setOpenDelete={setOpenDelete}
+                        title="Delete Book"
+                        context="Are You Sure? You want to delete this book"
+                        handleDelete={handleDeleteBook}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Box>
+        </Box>
       </main>
     </LayoutApp>
   );
