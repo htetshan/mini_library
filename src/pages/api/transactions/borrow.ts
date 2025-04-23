@@ -1,5 +1,5 @@
-import { prisma } from "@/lib/prisma";
 import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,39 +8,63 @@ export default async function handler(
   if (req.method === "POST") {
     const { memberId, bookId } = req.body;
 
+    // Validate input
+    if (!memberId || !bookId) {
+      return res
+        .status(400)
+        .json({ error: "Member ID and Book ID are required." });
+    }
+
     try {
+      // Check if the member exists
+      const member = await prisma.member.findUnique({
+        where: { id: memberId },
+      });
+
+      if (!member) {
+        return res.status(404).json({ error: "Member not found." });
+      }
+
+      // Check if the book exists and is available
       const book = await prisma.book.findUnique({
         where: { id: bookId },
       });
 
       if (!book) {
-        return res.status(404).json({ error: "Book not found" });
+        return res.status(404).json({ error: "Book not found." });
       }
 
-      if (book.borrowedCopies >= book.totalCopies) {
-        return res.status(400).json({ error: "No available copies left" });
+      if (!book.isAvailable) {
+        return res
+          .status(456)
+          .json({ error: "Book is not available for borrowing." });
       }
 
-      // Create transaction
-      await prisma.transaction.create({
+      // Create the transaction
+      const transaction = await prisma.transaction.create({
         data: {
           memberId,
           bookId,
-          status: "borrowed",
+          issuedAt: new Date(),
         },
       });
 
-      // Update borrowed copies of the book
-      await prisma.book.update({
+      // Mark the book as unavailable
+      const updateAvailable = await prisma.book.update({
         where: { id: bookId },
-        data: { borrowedCopies: book.borrowedCopies + 1 },
+        data: { isAvailable: false },
       });
 
-      res.status(200).json({ message: "Book borrowed successfully" });
+      return res.status(200).json({
+        message: "Transaction successful.",
+        transaction,
+        updateAvailable,
+      });
     } catch (error) {
-      res.status(400).json({ error: "Error borrowing book" });
+      console.error("Error processing transaction:", error);
+      return res.status(500).json({ error: "Internal server error." });
     }
   } else {
-    res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ error: "Method not allowed." });
   }
 }

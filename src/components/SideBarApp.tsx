@@ -1,6 +1,6 @@
 import BookIcon from "@mui/icons-material/Book";
 import RememberMeIcon from "@mui/icons-material/RememberMe";
-import DashboardIcon from "@mui/icons-material/Dashboard";
+import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import {
   Box,
   Divider,
@@ -12,9 +12,14 @@ import {
 import Link from "next/link";
 const SideBarApp = () => {
   const sideBarItem = [
-    { id: 1, name: "Dashboard", link: "/", icon: <DashboardIcon /> },
-    { id: 2, name: "Books", link: "/books", icon: <BookIcon /> },
-    { id: 3, name: "Members", link: "/members", icon: <RememberMeIcon /> },
+    { id: 1, name: "Books", link: "/books", icon: <BookIcon /> },
+    { id: 2, name: "Members", link: "/members", icon: <RememberMeIcon /> },
+    {
+      id: 3,
+      name: "Transactions",
+      link: "/transactions",
+      icon: <ChangeCircleIcon />,
+    },
   ];
   return (
     <Box>

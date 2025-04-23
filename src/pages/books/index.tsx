@@ -15,6 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addBook, removeBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import DeleteDialog from "@/components/DeleteDialog";
+import { Book } from "@prisma/client";
 
 export default function BooksPage() {
   const router = useRouter();
@@ -73,7 +74,29 @@ export default function BooksPage() {
       }
     }
   };
+  const handleDownloadBookCard = async (book: Book) => {
+    try {
+      const response = await fetch(`/api/books/${book.id}/download`, {
+        method: "GET",
+      });
 
+      if (!response.ok) {
+        throw new Error("Failed to download book card.");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${book.name}_card.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading book card:", error);
+      alert("Failed to download book card. Please try again.");
+    }
+  };
   return (
     <LayoutApp>
       <main className="min-h-screen p-8 bg-white">
@@ -136,19 +159,24 @@ export default function BooksPage() {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Book ID</TableCell>
                   <TableCell>Image</TableCell>
                   <TableCell>Name</TableCell>
                   <TableCell>Author</TableCell>
                   <TableCell>Category</TableCell>
+                  <TableCell>Available</TableCell>
                   <TableCell>Actions</TableCell>
+                  <TableCell>Generate Book QR</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {books.map((book) => (
                   <TableRow key={book.id}>
+                    <TableCell>{book.bookID}</TableCell>
+
                     <TableCell>
                       <img
-                        src={book.imageUrl}
+                        src={book.imageUrl as string}
                         alt={book.name}
                         width={60}
                         height={60}
@@ -158,6 +186,10 @@ export default function BooksPage() {
                     <TableCell>{book.name}</TableCell>
                     <TableCell>{book.author}</TableCell>
                     <TableCell>{book.category}</TableCell>
+                    <TableCell>
+                      {book.isAvailable ? "Yes" : "Borrowed"}{" "}
+                      {/* Display availability */}
+                    </TableCell>
                     <TableCell>
                       <Button
                         variant="outlined"
@@ -183,6 +215,15 @@ export default function BooksPage() {
                         context="Are You Sure? You want to delete this book"
                         handleDelete={handleDeleteBook}
                       />
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        color="success"
+                        onClick={() => handleDownloadBookCard(book)}
+                      >
+                        Generate
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}

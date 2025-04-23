@@ -8,37 +8,50 @@ export default async function handler(
   if (req.method === "POST") {
     const { memberId, bookId } = req.body;
 
+    // Validate input
+    if (!memberId || !bookId) {
+      return res
+        .status(400)
+        .json({ error: "Member ID and Book ID are required." });
+    }
+
     try {
+      // Find the active transaction for the member and book
       const transaction = await prisma.transaction.findFirst({
         where: {
           memberId,
           bookId,
-          status: "borrowed",
+          returnedAt: null, // Ensure the book is currently borrowed
         },
       });
 
       if (!transaction) {
-        return res.status(404).json({ error: "No active borrow found" });
+        return res
+          .status(404)
+          .json({
+            error:
+              "No active borrow transaction found for this book and member.",
+          });
       }
 
-      // Update the transaction to 'returned'
+      // Update the transaction to mark the book as returned
       await prisma.transaction.update({
         where: { id: transaction.id },
-        data: { status: "returned" },
+        data: { returnedAt: new Date() },
       });
 
-      // Update the book's borrowedCopies
-      const book = await prisma.book.findUnique({ where: { id: bookId } });
+      // Update the book to make it available
       await prisma.book.update({
         where: { id: bookId },
-        data: { borrowedCopies: book!.borrowedCopies - 1 },
+        data: { isAvailable: true },
       });
 
-      res.status(200).json({ message: "Book returned successfully" });
+      return res.status(200).json({ message: "Book returned successfully." });
     } catch (error) {
-      res.status(400).json({ error: "Error returning book" });
+      console.error("Error returning book:", error);
+      return res.status(500).json({ error: "Internal server error." });
     }
   } else {
-    res.status(405).json({ error: "Method Not Allowed" });
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 }

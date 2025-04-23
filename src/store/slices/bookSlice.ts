@@ -1,12 +1,13 @@
+import { Book } from "@prisma/client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface Book {
+/* interface Book {
   id: number;
   name: string;
   author: string;
   category: string;
   imageUrl: string;
-}
+} */
 
 interface BookState {
   books: Book[];

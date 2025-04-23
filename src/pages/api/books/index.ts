@@ -9,6 +9,19 @@ export const config = {
     bodyParser: false,
   },
 };
+async function generateRandomBookID(): Promise<string> {
+  let bookID: string = "";
+  let exists = true;
+
+  while (exists) {
+    const rand = Math.floor(Math.random() * 9999) + 1; // Generate a random number between 1 and 9999
+    bookID = `B${rand.toString().padStart(4, "0")}`; // Format as "B0001", "B1234", etc.
+    const existing = await prisma.book.findUnique({ where: { bookID } }); // Check if the bookID exists in the database
+    if (!existing) exists = false; // If no existing book is found, exit the loop
+  }
+
+  return bookID;
+}
 
 const uploadDir = path.join(process.cwd(), "public/uploads");
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
@@ -43,11 +56,14 @@ export default async function handler(
         return res.status(400).json({ error: "Missing required fields." });
       }
 
+      const bookID = await generateRandomBookID(); // Generate a unique bookID
+
       const fileName = path.basename(imageFile.filepath);
       const imageUrl = "/uploads/" + fileName;
 
       const newBook = await prisma.book.create({
         data: {
+          bookID, // Save the generated bookID
           name,
           author,
           category,

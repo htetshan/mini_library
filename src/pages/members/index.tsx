@@ -16,6 +16,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { Member } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -80,6 +81,29 @@ export default function MembersPage() {
     dispath(removeMembers(memberDeletedId));
     setOpenDelete(false);
   };
+  const handleDownloadCard = async (member: Member) => {
+    try {
+      const response = await fetch(`/api/members/${member.id}/download`, {
+        method: "GET",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to download member card.");
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${member.name}_card.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading member card:", error);
+      alert("Failed to download member card. Please try again.");
+    }
+  };
 
   return (
     <LayoutApp>
@@ -142,15 +166,18 @@ export default function MembersPage() {
           <Table>
             <TableHead>
               <TableRow>
+                <TableCell>Member ID</TableCell>
                 <TableCell>Name</TableCell>
                 <TableCell>Email</TableCell>
                 <TableCell>Phone</TableCell>
                 <TableCell>Actions</TableCell>
+                <TableCell>Generate Member Card </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
               {members.map((member) => (
                 <TableRow key={member.id}>
+                  <TableCell>{member.memberID}</TableCell>
                   <TableCell>{member.name}</TableCell>
                   <TableCell>{member.email}</TableCell>
                   <TableCell>{member.phone}</TableCell>
@@ -177,6 +204,16 @@ export default function MembersPage() {
                       }}
                     >
                       Delete
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    {" "}
+                    <Button
+                      variant="outlined"
+                      color="success"
+                      onClick={() => handleDownloadCard(member)}
+                    >
+                      Generate
                     </Button>
                   </TableCell>
                 </TableRow>

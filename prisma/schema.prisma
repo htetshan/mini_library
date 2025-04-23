@@ -8,12 +8,14 @@ datasource db {
 }
 
 model Book {
-    id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String
   author   String
   category String
   imageUrl String?
-  transactions   Transaction[]
+  bookID   String? @unique
+  isAvailable  Boolean       @default(true)
+  transactions Transaction[]
 }
 
 model Member {
@@ -22,15 +24,18 @@ model Member {
   email        String        @unique
   phone        String        @unique // Changed from Int to String
   address      String? // Added a new optional column
+  memberID     String?       @unique
   transactions Transaction[]
 }
 
 model Transaction {
-  id              Int      @id @default(autoincrement())
-  memberId        Int
-  bookId          Int
-  status          String
-  transactionDate DateTime @default(now())
-  book            Book     @relation(fields: [bookId], references: [id])
-  member          Member   @relation(fields: [memberId], references: [id])
+  id         Int       @id @default(autoincrement())
+  member     Member    @relation(fields: [memberId], references: [id])
+  memberId   Int
+  book       Book      @relation(fields: [bookId], references: [id])
+  bookId     Int
+  issuedAt   DateTime  @default(now())
+  returnedAt DateTime? // null = still borrowed
+
+  @@unique([bookId, returnedAt])
 }
