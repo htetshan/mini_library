@@ -21,6 +21,7 @@ export default function BooksPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { books } = useAppSelector((state) => state.books);
+  console.log(books);
 
   const [newBook, setNewBook] = useState({
     name: "",
