@@ -2,6 +2,10 @@ import { useState } from "react";
 import {
   Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
+  CardMedia,
   Table,
   TableBody,
   TableCell,
@@ -151,88 +155,77 @@ export default function BooksPage() {
           </Typography>
           <Box
             sx={{
-              maxHeight: "400px", // Set a fixed height for the table container
-              overflowY: "auto", // Enable vertical scrolling
-              border: "1px solid #ccc", // Optional: Add a border for better visibility
-              borderRadius: "4px", // Optional: Add rounded corners
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+              gap: 2,
+              maxHeight: "400px",
+              overflowY: "auto",
             }}
           >
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Book ID</TableCell>
-                  <TableCell>Image</TableCell>
-                  <TableCell>Name</TableCell>
-                  <TableCell>Author</TableCell>
-                  <TableCell>Category</TableCell>
-                  <TableCell>Available</TableCell>
-                  <TableCell>Actions</TableCell>
-                  <TableCell>Generate Book QR</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {books.map((book) => (
-                  <TableRow key={book.id}>
-                    <TableCell>{book.bookID}</TableCell>
-
-                    <TableCell>
-                      <img
-                        src={book.imageUrl as string}
-                        alt={book.name}
-                        width={60}
-                        height={60}
-                        style={{ objectFit: "cover", borderRadius: "8px" }}
-                      />
-                    </TableCell>
-                    <TableCell>{book.name}</TableCell>
-                    <TableCell>{book.author}</TableCell>
-                    <TableCell>{book.category}</TableCell>
-                    <TableCell>
-                      {book.isAvailable ? "Yes" : "Borrowed"}{" "}
-                      {/* Display availability */}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        onClick={() => handleUpdateBook(book.id)}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={() => {
-                          setOpenDelete(true);
-                          setBookToDelete(book.id);
-                        }}
-                      >
-                        Delete
-                      </Button>
-                      <DeleteDialog
-                        openDelete={openDelete}
-                        setOpenDelete={setOpenDelete}
-                        title="Delete Book"
-                        context="Are You Sure? You want to delete this book"
-                        handleDelete={handleDeleteBook}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outlined"
-                        color="success"
-                        onClick={() => handleDownloadBookCard(book)}
-                      >
-                        Generate
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            {books.map((book) => (
+              <Card key={book.id} sx={{ maxWidth: 345 }}>
+                <CardMedia
+                  sx={{ height: 140 }}
+                  image={book.imageUrl ?? "/default-image.jpg"} // Fallback to a default image
+                  title={book.name}
+                />
+                <CardContent>
+                  <Typography gutterBottom variant="h6" component="div">
+                    {book.name}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {book.author}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {book.category}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {book.isAvailable ? "Available" : "Borrowed"}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="primary"
+                    onClick={() => handleUpdateBook(book.id)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      setOpenDelete(true);
+                      setBookToDelete(book.id); // Store book ID to delete
+                    }}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="success"
+                    onClick={() => handleDownloadBookCard(book)}
+                  >
+                    Generate
+                  </Button>
+                </CardActions>
+              </Card>
+            ))}
           </Box>
+
+          {/* Delete Dialog */}
         </Box>
       </main>
+      <DeleteDialog
+        openDelete={openDelete}
+        setOpenDelete={setOpenDelete}
+        title="Delete Book"
+        context="Are You Sure? You want to delete this book"
+        handleDelete={handleDeleteBook}
+      />
     </LayoutApp>
   );
 }
