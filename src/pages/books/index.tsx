@@ -159,7 +159,7 @@ export default function BooksPage() {
               gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
               gap: 2,
               maxHeight: "400px",
-              overflowY: "auto",
+              //overflowY: "auto",
             }}
           >
             {books.map((book) => (

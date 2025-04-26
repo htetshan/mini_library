@@ -4,8 +4,17 @@ import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import Button from "@mui/material/Button";
 import IconButton from "@mui/material/IconButton";
+import MenuIcon from "@mui/icons-material/Menu";
 
-export default function TopBarApp() {
+interface TopBarAppProps {
+  isSidebarCollapsed: boolean;
+  setIsSidebarCollapsed: (collapsed: boolean) => void;
+}
+
+export default function TopBarApp({
+  isSidebarCollapsed,
+  setIsSidebarCollapsed,
+}: TopBarAppProps) {
   return (
     <Box
       sx={{
@@ -16,14 +25,16 @@ export default function TopBarApp() {
     >
       <AppBar position="static" sx={{ bgcolor: "#27374D" }}>
         <Toolbar>
+          {/* Collapse/Expand Button */}
           <IconButton
             size="large"
             edge="start"
             color="inherit"
             aria-label="menu"
             sx={{ mr: 2 }}
+            onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)} // Toggle sidebar state
           >
-            {/* <MenuIcon /> in this we can make logo*/}
+            <MenuIcon />
           </IconButton>
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
             Mini Library Management

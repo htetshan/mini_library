@@ -1,5 +1,5 @@
 import { Box } from "@mui/material";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import TopBarApp from "./TopBarApp";
 import SideBarApp from "./SideBarApp";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -10,6 +10,7 @@ interface Props {
 }
 
 const LayoutApp = ({ children }: Props) => {
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false); // State to manage sidebar collapse
   const dispath = useAppDispatch();
   const { init } = useAppSelector((state) => state.app);
   // Fetch members from the server
@@ -18,26 +19,6 @@ const LayoutApp = ({ children }: Props) => {
       dispath(appFetchServer());
     }
   }, []);
-  /*   useEffect(() => {
-    const fetchMembers = async () => {
-      try {
-        const response = await fetch(`${window.location.origin}/api/members`, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
-        const dataFromServer = await response.json();
-        const { members } = dataFromServer;
-        dispath(setMembers(members));
-      } catch (error) {
-        console.error("Failed to fetch members", error);
-      }
-    };
-
-    fetchMembers();
-  }, []); // ✅ Empty array means run once when component mounts
- */
   return (
     <Box
       sx={{
@@ -48,20 +29,38 @@ const LayoutApp = ({ children }: Props) => {
         overflow: "hidden",
       }}
     >
-      {/* Top Bar: 15% of the full screen height */}
+      {/* Top Bar */}
       <Box sx={{ height: "9%", width: "100%" }}>
-        <TopBarApp />
+        <TopBarApp
+          isSidebarCollapsed={isSidebarCollapsed}
+          setIsSidebarCollapsed={setIsSidebarCollapsed}
+        />
       </Box>
 
-      {/* Content Area: 85% of the full screen height */}
+      {/* Content Area */}
       <Box sx={{ display: "flex", height: "91%", width: "100%" }}>
-        {/* Sidebar: 1/4 of the width */}
-        <Box sx={{ width: "17%", bgcolor: "#526D82" }}>
-          <SideBarApp />
+        {/* Sidebar */}
+        <Box
+          sx={{
+            width: isSidebarCollapsed ? "5%" : "17%", // Adjust width based on collapse state
+            bgcolor: "#526D82",
+            transition: "width 0.3s ease",
+          }}
+        >
+          <SideBarApp isSidebarCollapsed={isSidebarCollapsed} />
         </Box>
-        <Box sx={{ width: "83%", bgcolor: "#9DB2BF", p: 1 }}>{children}</Box>
 
-        {/* Main Content: 3/4 of the width */}
+        {/* Main Content */}
+        <Box
+          sx={{
+            width: isSidebarCollapsed ? "95%" : "83%", // Adjust width based on collapse state
+            bgcolor: "#9DB2BF",
+            p: 1,
+            overflowY: "auto", // Enable scrolling for main content
+          }}
+        >
+          {children}
+        </Box>
       </Box>
     </Box>
   );

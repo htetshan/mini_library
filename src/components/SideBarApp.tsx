@@ -10,7 +10,12 @@ import {
   ListItemText,
 } from "@mui/material";
 import Link from "next/link";
-const SideBarApp = () => {
+
+const SideBarApp = ({
+  isSidebarCollapsed,
+}: {
+  isSidebarCollapsed: boolean;
+}) => {
   const sideBarItem = [
     { id: 1, name: "Books", link: "/books", icon: <BookIcon /> },
     { id: 2, name: "Members", link: "/members", icon: <RememberMeIcon /> },
@@ -21,6 +26,7 @@ const SideBarApp = () => {
       icon: <ChangeCircleIcon />,
     },
   ];
+
   return (
     <Box>
       {sideBarItem.map((item) => (
@@ -28,7 +34,8 @@ const SideBarApp = () => {
           <ListItem sx={{ color: "#DDE6ED" }} disablePadding>
             <ListItemButton>
               <ListItemIcon sx={{ color: "#27374D" }}>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.name} />
+              {!isSidebarCollapsed && <ListItemText primary={item.name} />}{" "}
+              {/* Show text only when expanded */}
             </ListItemButton>
           </ListItem>
         </Link>

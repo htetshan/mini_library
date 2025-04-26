@@ -154,7 +154,7 @@ export default function MembersPage() {
         <Box
           sx={{
             maxHeight: "500px", // Set a fixed height for the table container
-            overflowY: "auto", // Enable vertical scrolling
+            //overflowY: "auto", // Enable vertical scrolling
             border: "1px solid #ccc", // Optional: Add a border for better visibility
             borderRadius: "4px",
           }}
