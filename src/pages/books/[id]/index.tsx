@@ -7,6 +7,7 @@ import { prisma } from "@/lib/prisma";
 import { useAppDispatch } from "@/store/hooks";
 import { updateBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
+import { config } from "@/config";
 
 interface Props {
   book: Book | null;
@@ -56,7 +57,7 @@ const EditBook = ({ book }: Props) => {
       formData.append("category", editBook?.category || "");
       if (selectedFile) formData.append("image", selectedFile);
 
-      const response = await fetch("/api/books", {
+      const response = await fetch(`${config.api_url}/books`, {
         method: "PUT",
         body: formData,
       });

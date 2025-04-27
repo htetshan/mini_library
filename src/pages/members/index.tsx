@@ -1,4 +1,5 @@
 import LayoutApp from "@/components/LayoutApp";
+import { config } from "@/config";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addMembers, removeMembers } from "@/store/slices/memberSlice";
 import {
@@ -27,13 +28,32 @@ interface User {
 }
 
 export default function MembersPage() {
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   const { members } = useAppSelector((state) => state.members);
   const [newMember, setNewMember] = useState<User>({
     name: "",
     email: "",
     phone: "",
   });
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    phone: "",
+  });
+
+  const validateName = (name: string) => {
+    return name.trim().length >= 3; // Name must be at least 3 characters long
+  };
+
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone: string) => {
+    const phoneRegex = /^[0-9]{10,11}$/; // Validates a 10-11 digit phone number
+    return phoneRegex.test(phone);
+  };
 
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [memberToDelete, setMemberToDelete] = useState<number | null>(null);
@@ -48,11 +68,43 @@ export default function MembersPage() {
 
   // Handle adding a new member
   const handleAddMember = async () => {
-    const isValid =
-      newMember.name !== "" && newMember.email !== "" && newMember.phone !== "";
+    let isValid = true as boolean;
+
+    // Validate name
+    if (!validateName(newMember.name)) {
+      setErrors((prev) => ({
+        ...prev,
+        name: "Name must be at least 3 characters long",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, name: "" }));
+    }
+
+    // Validate email
+    if (!validateEmail(newMember.email)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Invalid email format:eg.test@gmail.com",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, email: "" }));
+    }
+
+    // Validate phone
+    if (!validatePhone(newMember.phone)) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "Invalid phone number format:eg.09-000 111 222",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, phone: "" }));
+    }
 
     if (isValid) {
-      const response = await fetch("http://localhost:3000/api/members", {
+      const response = await fetch(`${config.api_url}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -61,13 +113,14 @@ export default function MembersPage() {
       });
       const dataFromServer = await response.json();
       const { member } = dataFromServer;
-      dispath(addMembers(member));
+      dispatch(addMembers(member));
       setNewMember({ name: "", email: "", phone: "" }); // Reset form
     }
   };
+
   const handleDeleteMember = async () => {
     const response = await fetch(
-      `http://localhost:3000/api/members?id=${memberToDelete}`,
+      `${config.api_url}/members?id=${memberToDelete}`,
       {
         method: "DELETE",
         headers: {
@@ -78,14 +131,18 @@ export default function MembersPage() {
     );
     const dataFromServer = await response.json();
     const { memberDeletedId } = dataFromServer;
-    dispath(removeMembers(memberDeletedId));
+    dispatch(removeMembers(memberDeletedId));
     setOpenDelete(false);
   };
+
   const handleDownloadCard = async (member: Member) => {
     try {
-      const response = await fetch(`/api/members/${member.id}/download`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `${config.api_url}/members/${member.id}/download`,
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to download member card.");
@@ -120,6 +177,8 @@ export default function MembersPage() {
               label="Name"
               variant="outlined"
               value={newMember.name}
+              error={!!errors.name}
+              helperText={errors.name}
               onChange={(e) =>
                 setNewMember({ ...newMember, name: e.target.value })
               }
@@ -128,6 +187,8 @@ export default function MembersPage() {
               label="Email"
               variant="outlined"
               value={newMember.email}
+              error={!!errors.email}
+              helperText={errors.email}
               onChange={(e) =>
                 setNewMember({ ...newMember, email: e.target.value })
               }
@@ -136,6 +197,8 @@ export default function MembersPage() {
               label="Phone"
               variant="outlined"
               value={newMember.phone}
+              error={!!errors.phone}
+              helperText={errors.phone}
               onChange={(e) =>
                 setNewMember({ ...newMember, phone: e.target.value })
               }
@@ -154,7 +217,7 @@ export default function MembersPage() {
         <Box
           sx={{
             maxHeight: "500px", // Set a fixed height for the table container
-            //overflowY: "auto", // Enable vertical scrolling
+            overflowY: "auto", // Enable vertical scrolling
             border: "1px solid #ccc", // Optional: Add a border for better visibility
             borderRadius: "4px",
           }}
@@ -171,7 +234,7 @@ export default function MembersPage() {
                 <TableCell>Email</TableCell>
                 <TableCell>Phone</TableCell>
                 <TableCell>Actions</TableCell>
-                <TableCell>Generate Member Card </TableCell>
+                <TableCell>Generate Member Card</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -183,21 +246,13 @@ export default function MembersPage() {
                   <TableCell>{member.phone}</TableCell>
                   <TableCell>
                     <Link href={`/members/${member.id}`}>
-                      <Button
-                        variant="outlined"
-                        color="primary"
-                        sx={{ mr: 1 }}
-                        /*                       onClick={() =>  handleEdit(member.id) }
-                         */
-                      >
+                      <Button variant="outlined" color="primary" sx={{ mr: 1 }}>
                         Edit
                       </Button>
                     </Link>
                     <Button
                       variant="outlined"
                       color="error"
-                      /*                       onClick={() => handleDelete(member.id)}
-                       */
                       onClick={() => {
                         setOpenDelete(true);
                         setMemberToDelete(member.id);
@@ -207,7 +262,6 @@ export default function MembersPage() {
                     </Button>
                   </TableCell>
                   <TableCell>
-                    {" "}
                     <Button
                       variant="outlined"
                       color="success"
@@ -224,7 +278,9 @@ export default function MembersPage() {
 
         <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
           <DialogTitle>Delete Member</DialogTitle>
-          <DialogContent>Are You sure You Want To Delete Member</DialogContent>
+          <DialogContent>
+            Are you sure you want to delete this member?
+          </DialogContent>
           <DialogActions>
             <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
             <Button onClick={handleDeleteMember}>Yes</Button>

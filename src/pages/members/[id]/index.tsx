@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { useAppDispatch } from "@/store/hooks";
 import { replaceMembers } from "@/store/slices/memberSlice";
 import { useRouter } from "next/router";
+import { config } from "@/config";
 // make sure you have prisma instance
 
 interface Props {
@@ -51,7 +52,7 @@ const EditMember = ({ member }: Props) => {
       member.email !== updateMember?.email ||
       member.phone !== updateMember?.phone;
     if (shouldUpdate) {
-      const response = await fetch("http://localhost:3000/api/members", {
+      const response = await fetch(`${config.api_url}/members`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

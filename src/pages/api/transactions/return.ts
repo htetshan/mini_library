@@ -26,12 +26,9 @@ export default async function handler(
       });
 
       if (!transaction) {
-        return res
-          .status(404)
-          .json({
-            error:
-              "No active borrow transaction found for this book and member.",
-          });
+        return res.status(404).json({
+          error: "No active borrow transaction found for this book and member.",
+        });
       }
 
       // Update the transaction to mark the book as returned
@@ -41,12 +38,14 @@ export default async function handler(
       });
 
       // Update the book to make it available
-      await prisma.book.update({
+      const updateReturn = await prisma.book.update({
         where: { id: bookId },
         data: { isAvailable: true },
       });
 
-      return res.status(200).json({ message: "Book returned successfully." });
+      return res
+        .status(200)
+        .json({ message: "Book returned successfully.", updateReturn });
     } catch (error) {
       console.error("Error returning book:", error);
       return res.status(500).json({ error: "Internal server error." });

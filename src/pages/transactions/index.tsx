@@ -1,9 +1,12 @@
 import React, { useState } from "react";
 import { Button, TextField, Typography, Box } from "@mui/material";
 import LayoutApp from "@/components/LayoutApp";
-import { useAppSelector } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { updateBook } from "@/store/slices/bookSlice";
+import { useRouter } from "next/router";
 
 const IssueBookForm: React.FC = () => {
+  const dispatch = useAppDispatch();
   // States for Issue Book Form
   const [issueMemberID, setIssueMemberID] = useState<string | null>(null);
   const [issueBookID, setIssueBookID] = useState<string | null>(null);
@@ -20,7 +23,7 @@ const IssueBookForm: React.FC = () => {
 
   const returnMember = members.find((item) => item.memberID === returnMemberID);
   const returnBook = books.find((item) => item.bookID === returnBookID);
-
+  const router = useRouter();
   const handleIssue = async () => {
     if (!issueMember || !issueBook) return;
 
@@ -31,8 +34,13 @@ const IssueBookForm: React.FC = () => {
     });
 
     const dataFromServer = await res.json();
+    console.log(dataFromServer);
+
+    const { updateIssue } = dataFromServer;
     if (res.ok) {
       alert("Book issued successfully!");
+      dispatch(updateBook(updateIssue));
+      router.push("/books");
     } else {
       alert(dataFromServer.error || "Error issuing book.");
     }
@@ -51,8 +59,11 @@ const IssueBookForm: React.FC = () => {
     });
 
     const dataFromServer = await res.json();
+    const { updateReturn } = dataFromServer;
     if (res.ok) {
       alert("Book returned successfully!");
+      dispatch(updateBook(updateReturn));
+      router.push("/books");
     } else {
       alert(dataFromServer.error || "Error returning book.");
     }
@@ -60,7 +71,7 @@ const IssueBookForm: React.FC = () => {
 
   return (
     <LayoutApp>
-      <Box p={2}>
+      <Box p={2} sx={{ maxWidth: 444 }}>
         {/* Issue Book Form */}
         <Typography variant="h6">Issue Book</Typography>
         <TextField
@@ -84,7 +95,7 @@ const IssueBookForm: React.FC = () => {
         </Button>
       </Box>
 
-      <Box p={2} mt={4}>
+      <Box p={2} mt={4} sx={{ maxWidth: 444 }}>
         {/* Return Book Form */}
         <Typography variant="h6">Return Book</Typography>
         <TextField

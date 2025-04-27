@@ -20,6 +20,7 @@ import { addBook, removeBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import DeleteDialog from "@/components/DeleteDialog";
 import { Book } from "@prisma/client";
+import { config } from "@/config";
 
 export default function BooksPage() {
   const router = useRouter();
@@ -46,7 +47,7 @@ export default function BooksPage() {
     formData.append("category", newBook.category);
     if (selectedFile) formData.append("image", selectedFile);
 
-    const res = await fetch("/api/books", {
+    const res = await fetch(`${config.api_url}/books`, {
       method: "POST",
       body: formData,
     });
@@ -66,10 +67,11 @@ export default function BooksPage() {
 
   const handleDeleteBook = async () => {
     if (bookToDelete !== null) {
-      const res = await fetch(`/api/books?id=${bookToDelete}`, {
+      const res = await fetch(`${config.api_url}/books?id=${bookToDelete}`, {
         method: "DELETE",
       });
-
+      const dataFromServer = await res.json();
+      const { deletedBook } = dataFromServer;
       if (res.ok) {
         dispatch(removeBook(bookToDelete));
         setOpenDelete(false); // Close the dialog after deletion
@@ -81,9 +83,12 @@ export default function BooksPage() {
   };
   const handleDownloadBookCard = async (book: Book) => {
     try {
-      const response = await fetch(`/api/books/${book.id}/download`, {
-        method: "GET",
-      });
+      const response = await fetch(
+        `${config.api_url}/books/${book.id}/download`,
+        {
+          method: "GET",
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Failed to download book card.");
@@ -116,7 +121,7 @@ export default function BooksPage() {
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}>
             <TextField
-              label="Name"
+              label="Title Name"
               variant="outlined"
               value={newBook.name}
               onChange={(e) => setNewBook({ ...newBook, name: e.target.value })}
@@ -159,6 +164,7 @@ export default function BooksPage() {
               gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
               gap: 2,
               maxHeight: "400px",
+
               //overflowY: "auto",
             }}
           >
@@ -171,13 +177,16 @@ export default function BooksPage() {
                 />
                 <CardContent>
                   <Typography gutterBottom variant="h6" component="div">
-                    {book.name}
+                    {`BookID:  ${book.bookID}`}
+                  </Typography>
+                  <Typography gutterBottom variant="h6" component="div">
+                    {`Title:  ${book.name}`}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {book.author}
+                    {`Author:  ${book.author}`}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {book.category}
+                    {`Category:  ${book.category}`}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
                     {book.isAvailable ? "Available" : "Borrowed"}

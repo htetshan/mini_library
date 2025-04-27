@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { setMembers } from "./memberSlice";
 import { setBooks } from "./bookSlice";
+import { config } from "@/config";
 
 // Initial state
 interface AppSliceType {
@@ -17,9 +18,12 @@ const initialState: AppSliceType = {
 export const appFetchServer = createAsyncThunk(
   "appSlice/appFetchServer",
   async (_, thunkApi) => {
-    const response = await fetch(`/api/app`);
+    const response = await fetch(`${config.api_url}/app`);
+    console.log("url is work");
+
     const dataFromServer = await response.json();
     const { members, books } = dataFromServer;
+
     thunkApi.dispatch(setMembers(members));
     thunkApi.dispatch(setBooks(books));
     thunkApi.dispatch(setInit(true));

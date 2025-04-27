@@ -50,7 +50,7 @@ export default async function handler(
       });
 
       // Mark the book as unavailable
-      const updateAvailable = await prisma.book.update({
+      const updateIssue = await prisma.book.update({
         where: { id: bookId },
         data: { isAvailable: false },
       });
@@ -58,7 +58,7 @@ export default async function handler(
       return res.status(200).json({
         message: "Transaction successful.",
         transaction,
-        updateAvailable,
+        updateIssue,
       });
     } catch (error) {
       console.error("Error processing transaction:", error);
