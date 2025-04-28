@@ -1,11 +1,14 @@
 import LayoutApp from "@/components/LayoutApp";
-import { Box } from "@mui/material";
+import NewLayoutApp from "@/components/NewLayoutApp";
+import { Box, Typography } from "@mui/material";
 
 const hello = () => {
   return (
-    <LayoutApp>
-      <Box>main this place we make topbar side bar and main area</Box>
-    </LayoutApp>
+    <NewLayoutApp>
+      <Typography variant="h2">
+        A library is not a luxury but one of the necessities of life.
+      </Typography>
+    </NewLayoutApp>
   );
 };
 

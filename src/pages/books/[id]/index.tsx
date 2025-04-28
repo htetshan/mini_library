@@ -8,6 +8,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { updateBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import { config } from "@/config";
+import NewLayoutApp from "@/components/NewLayoutApp";
 
 interface Props {
   book: Book | null;
@@ -36,9 +37,9 @@ const EditBook = ({ book }: Props) => {
 
   if (!book) {
     return (
-      <LayoutApp>
+      <NewLayoutApp>
         <Box>404 Not Found</Box>
-      </LayoutApp>
+      </NewLayoutApp>
     );
   }
 
@@ -73,7 +74,7 @@ const EditBook = ({ book }: Props) => {
   };
 
   return (
-    <LayoutApp>
+    <NewLayoutApp>
       <main className="min-h-screen p-8 bg-white">
         <h1 className="text-2xl font-semibold mb-4">📚 Edit Book</h1>
         <Box sx={{ mb: 4 }}>
@@ -128,7 +129,7 @@ const EditBook = ({ book }: Props) => {
           </Button>
         </Box>
       </main>
-    </LayoutApp>
+    </NewLayoutApp>
   );
 };
 

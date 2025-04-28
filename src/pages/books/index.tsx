@@ -14,13 +14,13 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import LayoutApp from "@/components/LayoutApp";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addBook, removeBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import DeleteDialog from "@/components/DeleteDialog";
 import { Book } from "@prisma/client";
 import { config } from "@/config";
+import NewLayoutApp from "@/components/NewLayoutApp";
 
 export default function BooksPage() {
   const router = useRouter();
@@ -108,7 +108,7 @@ export default function BooksPage() {
     }
   };
   return (
-    <LayoutApp>
+    <NewLayoutApp>
       <main className="min-h-screen p-8 bg-white">
         <Typography variant="h4" gutterBottom>
           📚 Books
@@ -163,7 +163,8 @@ export default function BooksPage() {
               display: "grid",
               gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
               gap: 2,
-              maxHeight: "400px",
+              Height: "442px",
+              mb: 5,
 
               //overflowY: "auto",
             }}
@@ -171,7 +172,7 @@ export default function BooksPage() {
             {books.map((book) => (
               <Card key={book.id} sx={{ maxWidth: 345 }}>
                 <CardMedia
-                  sx={{ height: 140 }}
+                  sx={{ height: 200, m: 2 }}
                   image={book.imageUrl ?? "/default-image.jpg"} // Fallback to a default image
                   title={book.name}
                 />
@@ -235,6 +236,6 @@ export default function BooksPage() {
         context="Are You Sure? You want to delete this book"
         handleDelete={handleDeleteBook}
       />
-    </LayoutApp>
+    </NewLayoutApp>
   );
 }

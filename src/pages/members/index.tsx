@@ -1,10 +1,13 @@
-import LayoutApp from "@/components/LayoutApp";
+import NewLayoutApp from "@/components/NewLayoutApp";
 import { config } from "@/config";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addMembers, removeMembers } from "@/store/slices/memberSlice";
 import {
   Box,
   Button,
+  Card,
+  CardActions,
+  CardContent,
   Dialog,
   DialogActions,
   DialogContent,
@@ -60,9 +63,9 @@ export default function MembersPage() {
 
   if (!members) {
     return (
-      <LayoutApp>
+      <NewLayoutApp>
         <Box>404 Not Found</Box>
-      </LayoutApp>
+      </NewLayoutApp>
     );
   }
 
@@ -135,7 +138,7 @@ export default function MembersPage() {
     setOpenDelete(false);
   };
 
-  const handleDownloadCard = async (member: Member) => {
+  const handleDownloadMemberCard = async (member: Member) => {
     try {
       const response = await fetch(
         `${config.api_url}/members/${member.id}/download`,
@@ -163,7 +166,7 @@ export default function MembersPage() {
   };
 
   return (
-    <LayoutApp>
+    <NewLayoutApp>
       <main className="min-h-screen p-8 bg-white">
         <h1 className="text-2xl font-semibold mb-4">👤 Members</h1>
 
@@ -214,66 +217,68 @@ export default function MembersPage() {
         </Box>
 
         {/* Members List */}
-        <Box
-          sx={{
-            maxHeight: "500px", // Set a fixed height for the table container
-            overflowY: "auto", // Enable vertical scrolling
-            border: "1px solid #ccc", // Optional: Add a border for better visibility
-            borderRadius: "4px",
-          }}
-        >
+        <Box>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Members List
           </Typography>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
+              gap: 2,
+              Height: 442,
+              mb: 5,
 
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Member ID</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Phone</TableCell>
-                <TableCell>Actions</TableCell>
-                <TableCell>Generate Member Card</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {members.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell>{member.memberID}</TableCell>
-                  <TableCell>{member.name}</TableCell>
-                  <TableCell>{member.email}</TableCell>
-                  <TableCell>{member.phone}</TableCell>
-                  <TableCell>
-                    <Link href={`/members/${member.id}`}>
-                      <Button variant="outlined" color="primary" sx={{ mr: 1 }}>
-                        Edit
-                      </Button>
-                    </Link>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => {
-                        setOpenDelete(true);
-                        setMemberToDelete(member.id);
-                      }}
-                    >
-                      Delete
+              //overflowY: "auto",
+            }}
+          >
+            {members.map((member) => (
+              <Card key={member.id} sx={{ maxWidth: 345 }}>
+                <CardContent>
+                  <Typography gutterBottom variant="h6" component="div">
+                    {`MemberID:  ${member.memberID}`}
+                  </Typography>
+                  <Typography gutterBottom variant="h6" component="div">
+                    {`Name:  ${member.name}`}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {`Email:  ${member.email}`}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: "text.secondary" }}>
+                    {`Phone:  ${member.phone}`}
+                  </Typography>
+                </CardContent>
+                <CardActions>
+                  <Link href={`/members/${member.id}`}>
+                    <Button size="small" variant="outlined" color="primary">
+                      Edit
                     </Button>
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      onClick={() => handleDownloadCard(member)}
-                    >
-                      Generate
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                  </Link>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="error"
+                    onClick={() => {
+                      setOpenDelete(true);
+                      setMemberToDelete(member.id); // Store member ID to delete
+                    }}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    color="success"
+                    onClick={() => handleDownloadMemberCard(member)}
+                  >
+                    Generate
+                  </Button>
+                </CardActions>
+              </Card>
+            ))}
+          </Box>
+
+          {/* Delete Dialog */}
         </Box>
 
         <Dialog open={openDelete} onClose={() => setOpenDelete(false)}>
@@ -287,6 +292,6 @@ export default function MembersPage() {
           </DialogActions>
         </Dialog>
       </main>
-    </LayoutApp>
+    </NewLayoutApp>
   );
 }

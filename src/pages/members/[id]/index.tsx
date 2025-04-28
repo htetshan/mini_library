@@ -1,7 +1,6 @@
 // pages/members/[id]/index.tsx
 
 import { GetServerSideProps } from "next";
-import LayoutApp from "@/components/LayoutApp";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { Member } from "@prisma/client";
 import { useState } from "react";
@@ -10,6 +9,7 @@ import { useAppDispatch } from "@/store/hooks";
 import { replaceMembers } from "@/store/slices/memberSlice";
 import { useRouter } from "next/router";
 import { config } from "@/config";
+import NewLayoutApp from "@/components/NewLayoutApp";
 // make sure you have prisma instance
 
 interface Props {
@@ -40,9 +40,9 @@ const EditMember = ({ member }: Props) => {
 
   if (!member) {
     return (
-      <LayoutApp>
+      <NewLayoutApp>
         <Box>404 Not Found</Box>
-      </LayoutApp>
+      </NewLayoutApp>
     );
   }
 
@@ -69,14 +69,14 @@ const EditMember = ({ member }: Props) => {
   };
 
   return (
-    <LayoutApp>
+    <NewLayoutApp>
       <main className="min-h-screen p-8 bg-white">
         <h1 className="text-2xl font-semibold mb-4">👤 Edit Members</h1>
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Edit Member
           </Typography>
-          <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 2, flexWrap: "wrap" }}>
             <TextField
               label="Name"
               variant="outlined"
@@ -116,7 +116,7 @@ const EditMember = ({ member }: Props) => {
           </Box>
         </Box>
       </main>
-    </LayoutApp>
+    </NewLayoutApp>
   );
 };
 

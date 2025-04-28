@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Button, TextField, Typography, Box } from "@mui/material";
-import LayoutApp from "@/components/LayoutApp";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { updateBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
+import NewLayoutApp from "@/components/NewLayoutApp";
+import { config } from "@/config";
 
 const IssueBookForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -27,7 +28,7 @@ const IssueBookForm: React.FC = () => {
   const handleIssue = async () => {
     if (!issueMember || !issueBook) return;
 
-    const res = await fetch("/api/transactions/borrow", {
+    const res = await fetch(`${config.api_url}/transactions/borrow`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memberId: issueMember.id, bookId: issueBook.id }),
@@ -49,7 +50,7 @@ const IssueBookForm: React.FC = () => {
   const handleReturn = async () => {
     if (!returnMember || !returnBook) return;
 
-    const res = await fetch("/api/transactions/return", {
+    const res = await fetch(`${config.api_url}/transactions/return`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -70,7 +71,7 @@ const IssueBookForm: React.FC = () => {
   };
 
   return (
-    <LayoutApp>
+    <NewLayoutApp>
       <Box p={2} sx={{ maxWidth: 444 }}>
         {/* Issue Book Form */}
         <Typography variant="h6">Issue Book</Typography>
@@ -118,7 +119,7 @@ const IssueBookForm: React.FC = () => {
           Return
         </Button>
       </Box>
-    </LayoutApp>
+    </NewLayoutApp>
   );
 };
 
