@@ -5,8 +5,8 @@ import { Box, Typography } from "@mui/material";
 const hello = () => {
   return (
     <NewLayoutApp>
-      <Typography variant="h2">
-        A library is not a luxury but one of the necessities of life.
+      <Typography variant="h4">
+        Libraries store the energy that fuels the imagination.
       </Typography>
     </NewLayoutApp>
   );

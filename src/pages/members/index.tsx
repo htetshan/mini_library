@@ -168,8 +168,9 @@ export default function MembersPage() {
   return (
     <NewLayoutApp>
       <main className="min-h-screen p-8 bg-white">
-        <h1 className="text-2xl font-semibold mb-4">👤 Members</h1>
-
+        <Typography variant="h4" gutterBottom>
+          👤 Members
+        </Typography>
         {/* Add Member Form */}
         <Box sx={{ mb: 4 }}>
           <Typography variant="h6" sx={{ mb: 2 }}>

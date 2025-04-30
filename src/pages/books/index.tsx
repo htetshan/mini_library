@@ -26,39 +26,97 @@ export default function BooksPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { books } = useAppSelector((state) => state.books);
-  console.log(books);
 
   const [newBook, setNewBook] = useState({
     name: "",
     author: "",
     category: "",
   });
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [errors, setErrors] = useState({
+    name: "",
+    author: "",
+    category: "",
+  });
+  const [fileError, setFileError] = useState<string>("");
 
-  /*   const [editBook, setEditBook] = useState<any>(null);
-   */
+  const validateName = (name: string) => {
+    return name.trim().length >= 1; // Name must be at least 3 characters long
+  };
+
+  const validateAuthor = (author: string) => {
+    return author.trim().length >= 1; // Name must be at least 3 characters long
+  };
+
+  const validateCategory = (category: string) => {
+    return category.trim().length >= 1; // Name must be at least 3 characters long
+  };
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [openDelete, setOpenDelete] = useState<boolean>(false);
   const [bookToDelete, setBookToDelete] = useState<number | null>(null);
 
   const handleAddBook = async () => {
-    const formData = new FormData();
-    formData.append("name", newBook.name);
-    formData.append("author", newBook.author);
-    formData.append("category", newBook.category);
-    if (selectedFile) formData.append("image", selectedFile);
+    let isValid = true as boolean;
 
-    const res = await fetch(`${config.api_url}/books`, {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      dispatch(addBook(data.book));
-      setNewBook({ name: "", author: "", category: "" });
-      setSelectedFile(null);
+    // Validate name
+    if (!validateName(newBook.name)) {
+      setErrors((prev) => ({
+        ...prev,
+        name: "Name is required",
+      }));
+      isValid = false;
     } else {
-      console.error("Upload failed", data.error);
+      setErrors((prev) => ({ ...prev, name: "" }));
+    }
+
+    // Validate author
+    if (!validateAuthor(newBook.author)) {
+      setErrors((prev) => ({
+        ...prev,
+        author: "Author Name is required",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, author: "" }));
+    }
+
+    // Validate category
+    if (!validateCategory(newBook.category)) {
+      setErrors((prev) => ({
+        ...prev,
+        category: "Category Name is required",
+      }));
+      isValid = false;
+    } else {
+      setErrors((prev) => ({ ...prev, category: "" }));
+    }
+    // Validate file input
+    if (!selectedFile) {
+      setFileError("File is required");
+      isValid = false;
+    } else {
+      setFileError("");
+    }
+
+    if (isValid) {
+      const formData = new FormData();
+      formData.append("name", newBook.name);
+      formData.append("author", newBook.author);
+      formData.append("category", newBook.category);
+      if (selectedFile) formData.append("image", selectedFile);
+      const res = await fetch(`${config.api_url}/books`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        dispatch(addBook(data.book));
+        setNewBook({ name: "", author: "", category: "" });
+        setSelectedFile(null);
+      } else {
+        console.error("Upload failed", data.error);
+      }
     }
   };
   const handleUpdateBook = (id: number) => {
@@ -124,12 +182,16 @@ export default function BooksPage() {
               label="Title Name"
               variant="outlined"
               value={newBook.name}
+              error={!!errors.name}
+              helperText={errors.name}
               onChange={(e) => setNewBook({ ...newBook, name: e.target.value })}
             />
             <TextField
               label="Author"
               variant="outlined"
               value={newBook.author}
+              error={!!errors.author}
+              helperText={errors.author}
               onChange={(e) =>
                 setNewBook({ ...newBook, author: e.target.value })
               }
@@ -138,15 +200,24 @@ export default function BooksPage() {
               label="Category"
               variant="outlined"
               value={newBook.category}
+              error={!!errors.category}
+              helperText={errors.category}
               onChange={(e) =>
                 setNewBook({ ...newBook, category: e.target.value })
               }
             />
-            <input
-              type="file"
-              accept="image/*"
-              onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-            />
+            <Box sx={{ display: "flex", flexDirection: "column" }}>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+              />
+              {fileError && (
+                <Typography variant="body2" color="error">
+                  {fileError}
+                </Typography>
+              )}
+            </Box>
             <Button variant="contained" color="primary" onClick={handleAddBook}>
               Add Book
             </Button>
