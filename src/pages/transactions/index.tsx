@@ -26,7 +26,10 @@ const IssueBookForm: React.FC = () => {
   const returnBook = books.find((item) => item.bookID === returnBookID);
   const router = useRouter();
   const handleIssue = async () => {
-    if (!issueMember || !issueBook) return;
+    if (!issueMember || !issueBook) {
+      alert("Invalid Member ID or Book ID.");
+      return;
+    }
 
     const res = await fetch(`${config.api_url}/transactions/borrow`, {
       method: "POST",
@@ -48,7 +51,10 @@ const IssueBookForm: React.FC = () => {
   };
 
   const handleReturn = async () => {
-    if (!returnMember || !returnBook) return;
+    if (!returnMember || !returnBook) {
+      alert("invalid member Id or book id");
+      return;
+    }
 
     const res = await fetch(`${config.api_url}/transactions/return`, {
       method: "POST",

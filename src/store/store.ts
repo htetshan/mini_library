@@ -2,13 +2,15 @@ import { configureStore } from "@reduxjs/toolkit";
 import memeberSliceReducer from "./slices/memberSlice";
 import bookSliceReducer from "./slices/bookSlice";
 import appSliceReducer from "./slices/appSlice";
+import transactionSliceReducer from "./slices/transactionSlice";
 // ...
 
 export const store = configureStore({
   reducer: {
+    app: appSliceReducer,
     members: memeberSliceReducer,
     books: bookSliceReducer,
-    app: appSliceReducer,
+    transactions: transactionSliceReducer,
     /*     posts: postsReducer,
     comments: commentsReducer,
     users: usersReducer, */

@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { setMembers } from "./memberSlice";
 import { setBooks } from "./bookSlice";
 import { config } from "@/config";
+import { setTransaction } from "./transactionSlice";
 
 // Initial state
 interface AppSliceType {
@@ -22,11 +23,12 @@ export const appFetchServer = createAsyncThunk(
     console.log("url is work");
 
     const dataFromServer = await response.json();
-    const { members, books } = dataFromServer;
+    const { members, books, transactions } = dataFromServer;
 
     thunkApi.dispatch(setMembers(members));
     thunkApi.dispatch(setBooks(books));
     thunkApi.dispatch(setInit(true));
+    thunkApi.dispatch(setTransaction(transactions));
     /* const { menus, menuCategories, company, menuCategoryMenus } =
       dataFromServer;
     thunkApi.dispatch(setMenu(menus));

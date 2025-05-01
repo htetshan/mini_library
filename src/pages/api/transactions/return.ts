@@ -40,7 +40,7 @@ export default async function handler(
       // Update the book to make it available
       const updateReturn = await prisma.book.update({
         where: { id: bookId },
-        data: { isAvailable: true },
+        data: { isAvailable: true, borrowedMemberID: null },
       });
 
       return res

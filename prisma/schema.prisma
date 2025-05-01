@@ -15,6 +15,7 @@ model Book {
   imageUrl String?
   bookID   String? @unique
   isAvailable  Boolean       @default(true)
+  borrowedMemberID   Int?
   transactions Transaction[]
 }
 

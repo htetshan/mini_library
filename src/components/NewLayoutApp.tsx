@@ -19,12 +19,13 @@ interface LayoutProps {
 export default function NewLayoutApp({ children }: LayoutProps) {
   const dispath = useAppDispatch();
   const { init } = useAppSelector((state) => state.app);
+  const { books } = useAppSelector((state) => state.books);
   // Fetch members from the server
   React.useEffect(() => {
     if (!init) {
       dispath(appFetchServer());
     }
-  }, []);
+  }, [books]);
   /*
   interface Router {
     pathname: string;

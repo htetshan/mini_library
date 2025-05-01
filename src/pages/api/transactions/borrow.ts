@@ -52,7 +52,7 @@ export default async function handler(
       // Mark the book as unavailable
       const updateIssue = await prisma.book.update({
         where: { id: bookId },
-        data: { isAvailable: false },
+        data: { isAvailable: false, borrowedMemberID: memberId },
       });
 
       return res.status(200).json({

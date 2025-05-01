@@ -7,6 +7,7 @@ CREATE TABLE "Book" (
     "imageUrl" TEXT,
     "bookID" TEXT,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
+    "borrowedMemberID" INTEGER,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
 );

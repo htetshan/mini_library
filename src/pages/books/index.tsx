@@ -26,6 +26,8 @@ export default function BooksPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { books } = useAppSelector((state) => state.books);
+  const { transactions } = useAppSelector((state) => state.transactions);
+  const { members } = useAppSelector((state) => state.members);
 
   const [newBook, setNewBook] = useState({
     name: "",
@@ -261,7 +263,13 @@ export default function BooksPage() {
                     {`Category:  ${book.category}`}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
-                    {book.isAvailable ? "Available" : "Borrowed"}
+                    {book.isAvailable
+                      ? "Available"
+                      : `Borrowed by ${
+                          members.find(
+                            (ele) => ele.id === book.borrowedMemberID
+                          )?.name
+                        }`}
                   </Typography>
                 </CardContent>
                 <CardActions>

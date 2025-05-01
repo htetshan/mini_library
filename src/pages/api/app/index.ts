@@ -12,8 +12,10 @@ export default async function handler(
 ) {
   const members = await prisma.member.findMany();
   const books = await prisma.book.findMany();
+  const transactions = await prisma.transaction.findMany();
+
   if (!members || !books) {
     res.status(400).json({ error: "404 not found" });
   }
-  res.status(200).json({ members, books });
+  res.status(200).json({ members, books, transactions });
 }
