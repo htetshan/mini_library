@@ -5,6 +5,7 @@ import { updateBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import NewLayoutApp from "@/components/NewLayoutApp";
 import { config } from "@/config";
+import { setTransactions } from "@/store/slices/transactionSlice";
 
 const IssueBookForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -40,10 +41,12 @@ const IssueBookForm: React.FC = () => {
     const dataFromServer = await res.json();
     console.log(dataFromServer);
 
-    const { updateIssue } = dataFromServer;
+    const { updateIssue, transactions } = dataFromServer;
+
     if (res.ok) {
       alert("Book issued successfully!");
       dispatch(updateBook(updateIssue));
+      dispatch(setTransactions(transactions));
       router.push("/books");
     } else {
       alert(dataFromServer.error || "Error issuing book.");
@@ -66,10 +69,12 @@ const IssueBookForm: React.FC = () => {
     });
 
     const dataFromServer = await res.json();
-    const { updateReturn } = dataFromServer;
+    const { updateReturn, transactions } = dataFromServer;
     if (res.ok) {
       alert("Book returned successfully!");
       dispatch(updateBook(updateReturn));
+      dispatch(setTransactions(transactions));
+
       router.push("/books");
     } else {
       alert(dataFromServer.error || "Error returning book.");
