@@ -65,6 +65,8 @@ const EditMember = ({ member }: Props) => {
       console.log("updateMember form DB", updateMember);
 
       router.push("/members");
+    } else {
+      alert("Update something");
     }
   };
 

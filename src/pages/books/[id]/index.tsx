@@ -70,6 +70,8 @@ const EditBook = ({ book }: Props) => {
       } else {
         console.error("Failed to update book");
       }
+    } else {
+      alert("Update something");
     }
   };
 
