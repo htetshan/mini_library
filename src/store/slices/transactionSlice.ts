@@ -1,52 +1,28 @@
-import { Transaction } from "@prisma/client";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Transaction } from "@prisma/client";
 
-/* interface Transaction {
-    id: number;
-    memberId: number;
-    bookId: number;
-    issuedAt: Date;
-    returnedAt: Date | null;
-} */
+interface TransactionWithDetails extends Transaction {
+  book: { name: string };
+  member: { name: string };
+}
 
 interface TransactionState {
-  transactions: Transaction[];
+  transactions: TransactionWithDetails[];
 }
 
 const initialState: TransactionState = {
   transactions: [],
 };
 
-const bookSlice = createSlice({
+const transactionSlice = createSlice({
   name: "transactions",
   initialState,
   reducers: {
-    setTransaction(state, action: PayloadAction<Transaction[]>) {
+    setTransactions(state, action: PayloadAction<TransactionWithDetails[]>) {
       state.transactions = action.payload;
-    },
-    addTransaction(state, action: PayloadAction<Transaction>) {
-      state.transactions.push(action.payload);
-    },
-    updateTransaction(state, action: PayloadAction<Transaction>) {
-      const index = state.transactions.findIndex(
-        (item) => item.id === action.payload.id
-      );
-      if (index !== -1) {
-        state.transactions[index] = action.payload;
-      }
-    },
-    removeTransaction(state, action: PayloadAction<number>) {
-      state.transactions = state.transactions.filter(
-        (item) => item.id !== action.payload
-      );
     },
   },
 });
 
-export const {
-  setTransaction,
-  addTransaction,
-  updateTransaction,
-  removeTransaction,
-} = bookSlice.actions;
-export default bookSlice.reducer;
+export const { setTransactions } = transactionSlice.actions;
+export default transactionSlice.reducer;

@@ -12,6 +12,7 @@ import HomeIcon from "@mui/icons-material/Home";
 import BookIcon from "@mui/icons-material/Book";
 import RememberMeIcon from "@mui/icons-material/RememberMe";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
+import HistoryIcon from "@mui/icons-material/History";
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -57,6 +58,11 @@ export default function NewLayoutApp({ children }: LayoutProps) {
           segment: "transactions",
           title: "Transactions",
           icon: <ChangeCircleIcon />,
+        },
+        {
+          segment: "transactions/history",
+          title: "Transactions History",
+          icon: <HistoryIcon />,
         },
       ]}
       router={{ pathname: nextRouter.pathname, Link }}
