@@ -132,8 +132,8 @@ export default function BooksPage() {
       });
       const dataFromServer = await res.json();
       const { deletedBook } = dataFromServer;
+      dispatch(removeBook(bookToDelete));
       if (res.ok) {
-        dispatch(removeBook(bookToDelete));
         setOpenDelete(false); // Close the dialog after deletion
         setBookToDelete(null); // Reset the book to delete
       } else {

@@ -142,11 +142,13 @@ export default async function handler(
       }
 
       // Delete the book from the database
-      await prisma.book.delete({
+      const deletedBook = await prisma.book.delete({
         where: { id: Number(id) },
       });
 
-      return res.status(200).json({ message: "Book deleted successfully." });
+      return res
+        .status(200)
+        .json({ message: "Book deleted successfully.", deletedBook });
     } catch (error) {
       console.error("Error deleting book:", error);
       return res.status(500).json({ error: "Failed to delete book." });
