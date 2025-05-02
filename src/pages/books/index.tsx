@@ -127,9 +127,19 @@ export default function BooksPage() {
 
   const handleDeleteBook = async () => {
     if (bookToDelete !== null) {
+      // Find the book to delete
+      const book = books.find((b) => b.id === bookToDelete);
+
+      // Check if the book is not available
+      if (book && !book.isAvailable) {
+        alert("Cannot delete a book that is currently borrowed.");
+        return; // Exit the function
+      }
+
       const res = await fetch(`${config.api_url}/books?id=${bookToDelete}`, {
         method: "DELETE",
       });
+
       const dataFromServer = await res.json();
       const { deletedBook } = dataFromServer;
       dispatch(removeBook(bookToDelete));

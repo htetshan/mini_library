@@ -54,10 +54,16 @@ export default async function handler(
         where: { id: bookId },
         data: { isAvailable: false, borrowedMemberID: memberId },
       });
+      const transactions = await prisma.transaction.findMany({
+        include: {
+          book: true, // Include book details
+          member: true, // Include member details
+        },
+      });
 
       return res.status(200).json({
         message: "Transaction successful.",
-        transaction,
+        transactions,
         updateIssue,
       });
     } catch (error) {

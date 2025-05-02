@@ -122,20 +122,27 @@ export default function MembersPage() {
   };
 
   const handleDeleteMember = async () => {
-    const response = await fetch(
-      `${config.api_url}/members?id=${memberToDelete}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(memberToDelete),
+    if (memberToDelete !== null) {
+      const member = members.find((item) => item.id === memberToDelete);
+      if (member) {
+        alert("Cannot delete a member that is currently borrowed book.");
+        return; // Exit the function
       }
-    );
-    const dataFromServer = await response.json();
-    const { memberDeletedId } = dataFromServer;
-    dispatch(removeMembers(memberDeletedId));
-    setOpenDelete(false);
+      const response = await fetch(
+        `${config.api_url}/members?id=${memberToDelete}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(memberToDelete),
+        }
+      );
+      const dataFromServer = await response.json();
+      const { memberDeletedId } = dataFromServer;
+      dispatch(removeMembers(memberDeletedId));
+      setOpenDelete(false);
+    }
   };
 
   const handleDownloadMemberCard = async (member: Member) => {
