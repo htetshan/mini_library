@@ -3,6 +3,7 @@ import memeberSliceReducer from "./slices/memberSlice";
 import bookSliceReducer from "./slices/bookSlice";
 import appSliceReducer from "./slices/appSlice";
 import transactionSliceReducer from "./slices/transactionSlice";
+import appSnackBarSliceReducer from "./slices/snackBarSlice";
 // ...
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     members: memeberSliceReducer,
     books: bookSliceReducer,
     transactions: transactionSliceReducer,
+    appsnackbar: appSnackBarSliceReducer,
     /*     posts: postsReducer,
     comments: commentsReducer,
     users: usersReducer, */

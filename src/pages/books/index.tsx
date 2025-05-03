@@ -21,6 +21,8 @@ import DeleteDialog from "@/components/DeleteDialog";
 import { Book } from "@prisma/client";
 import { config } from "@/config";
 import NewLayoutApp from "@/components/NewLayoutApp";
+import Image from "next/image";
+import { hideSnackBar, showSnackBar } from "@/store/slices/snackBarSlice";
 
 export default function BooksPage() {
   const router = useRouter();
@@ -114,9 +116,25 @@ export default function BooksPage() {
       const data = await res.json();
       if (res.ok) {
         dispatch(addBook(data.book));
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "success",
+            messages: "Success Add Book",
+          })
+        );
+
         setNewBook({ name: "", author: "", category: "" });
         setSelectedFile(null);
       } else {
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages: "Upload Failed Add Book",
+          })
+          //  hideSnackBar()
+        );
         console.error("Upload failed", data.error);
       }
     }
@@ -143,11 +161,25 @@ export default function BooksPage() {
       const dataFromServer = await res.json();
       const { deletedBook } = dataFromServer;
       dispatch(removeBook(bookToDelete));
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Book deleted!",
+        })
+      );
       if (res.ok) {
         setOpenDelete(false); // Close the dialog after deletion
         setBookToDelete(null); // Reset the book to delete
       } else {
         console.error("Delete failed");
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages: "Book Delete failed!",
+          })
+        );
       }
     }
   };
@@ -159,7 +191,13 @@ export default function BooksPage() {
           method: "GET",
         }
       );
-
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Book QR Downloaded!",
+        })
+      );
       if (!response.ok) {
         throw new Error("Failed to download book card.");
       }
@@ -172,9 +210,22 @@ export default function BooksPage() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Book QR Downloaded!",
+        })
+      );
     } catch (error) {
       console.error("Error downloading book card:", error);
-      alert("Failed to download book card. Please try again.");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: "Failed to download book card. Please try again.",
+        })
+      );
     }
   };
   return (
@@ -254,11 +305,16 @@ export default function BooksPage() {
           >
             {books.map((book) => (
               <Card key={book.id} sx={{ maxWidth: 345 }}>
-                <CardMedia
-                  sx={{ height: 200, m: 2 }}
-                  image={book.imageUrl ?? "/default-image.jpg"} // Fallback to a default image
-                  title={book.name}
-                />
+                <Box sx={{ position: "relative", height: 200 }}>
+                  <Image
+                    src={book.imageUrl ?? "/default-image.jpg"}
+                    alt={book.name}
+                    fill
+                    style={{ objectFit: "cover" }}
+                    sizes="(min-width: 808px) 50vw, 100vw"
+                  />
+                </Box>
+
                 <CardContent>
                   <Typography gutterBottom variant="h6" component="div">
                     {`BookID:  ${book.bookID}`}

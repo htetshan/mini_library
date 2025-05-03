@@ -26,9 +26,7 @@ export default async function handler(
   if (method === "GET") {
     const members = await prisma.member.findMany();
     return res.status(200).json({ members });
-  }
-
-  if (method === "POST") {
+  } else if (method === "POST") {
     const { name, email, phone } = req.body;
 
     const isInvalid = !name || !email || !phone;
@@ -44,9 +42,7 @@ export default async function handler(
     });
 
     return res.status(200).json({ member });
-  }
-
-  if (method === "PUT") {
+  } else if (method === "PUT") {
     const { id, ...payload } = req.body;
     const { name, email, phone } = payload;
     const isInvalid = !name || !email || !phone;
@@ -65,11 +61,12 @@ export default async function handler(
     });
 
     return res.status(200).json({ updateMemberDb });
-  }
+  } else if (method === "DELETE") {
+    const memberToDelete = Number(req.query.id) as number;
+    console.log("internal error:", memberToDelete);
 
-  if (method === "DELETE") {
-    const memberToDelete = Number(req.query.id);
-
+    if (memberToDelete) return res.status(200).send("error");
+    // Check if the member exists
     const exist = await prisma.member.findFirst({
       where: { id: memberToDelete },
     });
@@ -77,13 +74,24 @@ export default async function handler(
       return res.status(400).json({ error: "Member Not Found" });
     }
 
+    // Check if the member has borrowed any books
+    const borrowedBooks = await prisma.book.findMany({
+      where: { borrowedMemberID: memberToDelete },
+    });
+
+    if (borrowedBooks.length > 0) {
+      return res
+        .status(400)
+        .json({ error: "Cannot delete a member who has borrowed books." });
+    }
+
+    // Proceed with deletion if no borrowed books are found
     const memberDeleted = await prisma.member.delete({
       where: { id: memberToDelete },
     });
 
-    return res.status(200).json({ memberDeletedId: memberDeleted.id });
+    return res.status(200).json({ message: "Member deleted successfully." });
   }
 
-  res.setHeader("Allow", ["GET", "POST", "PUT", "DELETE"]);
-  return res.status(405).end(`Method ${req.method} Not Allowed`);
+  return res.status(405).end(`Method  Not Allowed`);
 }

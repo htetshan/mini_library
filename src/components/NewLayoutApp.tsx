@@ -13,18 +13,20 @@ import BookIcon from "@mui/icons-material/Book";
 import RememberMeIcon from "@mui/icons-material/RememberMe";
 import ChangeCircleIcon from "@mui/icons-material/ChangeCircle";
 import HistoryIcon from "@mui/icons-material/History";
+import Image from "next/image";
+import AppSnackBar from "./AppSnackBar";
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 export default function NewLayoutApp({ children }: LayoutProps) {
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   const { init } = useAppSelector((state) => state.app);
   const { books } = useAppSelector((state) => state.books);
   // Fetch members from the server
   React.useEffect(() => {
     if (!init) {
-      dispath(appFetchServer());
+      dispatch(appFetchServer());
     }
   }, [books]);
   /*
@@ -46,7 +48,9 @@ export default function NewLayoutApp({ children }: LayoutProps) {
   return (
     <AppProvider
       branding={{
-        logo: <img src="/Library_logo.png" alt="mini" />,
+        logo: (
+          <Image src="/Library_logo.png" alt="mini" width={28} height={30} />
+        ),
         title: "Mini Library Management",
         homeUrl: "/",
       }}
@@ -73,6 +77,7 @@ export default function NewLayoutApp({ children }: LayoutProps) {
           <Box sx={{ p: 4 }}>{children}</Box>
         </Box>
       </DashboardLayout>
+      <AppSnackBar />
     </AppProvider>
   );
 }

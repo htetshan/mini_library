@@ -9,6 +9,7 @@ import { updateBook } from "@/store/slices/bookSlice";
 import { useRouter } from "next/router";
 import { config } from "@/config";
 import NewLayoutApp from "@/components/NewLayoutApp";
+import { showSnackBar } from "@/store/slices/snackBarSlice";
 
 interface Props {
   book: Book | null;
@@ -66,12 +67,25 @@ const EditBook = ({ book }: Props) => {
       if (response.ok) {
         const data = await response.json();
         dispatch(updateBook(data.book)); // Update Redux state
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "success",
+            messages: "Book Updated",
+          })
+        );
         router.push("/books"); // Redirect to the books list page
       } else {
         console.error("Failed to update book");
       }
     } else {
-      alert("Update something");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: "Update failed: all fields are unchanged.",
+        })
+      );
     }
   };
 

@@ -27,8 +27,8 @@ export const appFetchServer = createAsyncThunk(
 
     thunkApi.dispatch(setMembers(members));
     thunkApi.dispatch(setBooks(books));
-    thunkApi.dispatch(setInit(true));
     thunkApi.dispatch(setTransactions(transactions));
+    thunkApi.dispatch(setInit(true));
     /* const { menus, menuCategories, company, menuCategoryMenus } =
       dataFromServer;
     thunkApi.dispatch(setMenu(menus));

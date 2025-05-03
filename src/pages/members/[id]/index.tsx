@@ -5,11 +5,13 @@ import { Box, Button, TextField, Typography } from "@mui/material";
 import { Member } from "@prisma/client";
 import { useState } from "react";
 import { prisma } from "@/lib/prisma";
-import { useAppDispatch } from "@/store/hooks";
+
 import { replaceMembers } from "@/store/slices/memberSlice";
 import { useRouter } from "next/router";
 import { config } from "@/config";
 import NewLayoutApp from "@/components/NewLayoutApp";
+import { showSnackBar } from "@/store/slices/snackBarSlice";
+import { useAppDispatch } from "@/store/hooks";
 // make sure you have prisma instance
 
 interface Props {
@@ -35,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
 const EditMember = ({ member }: Props) => {
   const router = useRouter();
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   const [updateMember, setUpdateMember] = useState<Member | null>(member);
 
   if (!member) {
@@ -61,12 +63,24 @@ const EditMember = ({ member }: Props) => {
       });
       const dataFromServer = await response.json();
       const { updateMemberDb } = dataFromServer;
-      dispath(replaceMembers(updateMemberDb));
+      dispatch(replaceMembers(updateMemberDb));
       console.log("updateMember form DB", updateMember);
-
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Member Updated",
+        })
+      );
       router.push("/members");
     } else {
-      alert("Update something");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: "Update failed: all fields are unchanged.",
+        })
+      );
     }
   };
 

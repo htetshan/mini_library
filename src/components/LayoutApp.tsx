@@ -11,12 +11,12 @@ interface Props {
 
 const LayoutApp = ({ children }: Props) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false); // State to manage sidebar collapse
-  const dispath = useAppDispatch();
+  const dispatch = useAppDispatch();
   const { init } = useAppSelector((state) => state.app);
   // Fetch members from the server
   useEffect(() => {
     if (!init) {
-      dispath(appFetchServer());
+      dispatch(appFetchServer());
     }
   }, []);
   return (

@@ -33,6 +33,7 @@ interface User {
 export default function MembersPage() {
   const dispatch = useAppDispatch();
   const { members } = useAppSelector((state) => state.members);
+  const { books } = useAppSelector((state) => state.books);
   const [newMember, setNewMember] = useState<User>({
     name: "",
     email: "",
@@ -123,10 +124,10 @@ export default function MembersPage() {
 
   const handleDeleteMember = async () => {
     if (memberToDelete !== null) {
-      const member = members.find((item) => item.id === memberToDelete);
-      if (member) {
+      const BorrowedMember = books.find((item) => item.id === memberToDelete);
+      if (BorrowedMember) {
         alert("Cannot delete a member that is currently borrowed book.");
-        return; // Exit the function
+        // Exit the function
       }
       const response = await fetch(
         `${config.api_url}/members?id=${memberToDelete}`,
@@ -138,9 +139,8 @@ export default function MembersPage() {
           body: JSON.stringify(memberToDelete),
         }
       );
-      const dataFromServer = await response.json();
-      const { memberDeletedId } = dataFromServer;
-      dispatch(removeMembers(memberDeletedId));
+
+      dispatch(removeMembers(memberToDelete));
       setOpenDelete(false);
     }
   };

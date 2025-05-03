@@ -1,36 +1,33 @@
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Snackbar, { SnackbarCloseReason } from "@mui/material/Snackbar";
+import { Alert, Box } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { hideSnackBar } from "@/store/slices/snackBarSlice";
 
-export default function AutohideSnackbar() {
-  const [open, setOpen] = React.useState(false);
+export default function AppSnackBar() {
+  const dispatch = useAppDispatch();
+  const { openState, successOrError, messages } = useAppSelector(
+    (state) => state.appsnackbar
+  );
 
-  const handleClick = () => {
-    setOpen(true);
-  };
-
-  const handleClose = (
-    event: React.SyntheticEvent | Event,
-    reason: SnackbarCloseReason
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-
-    setOpen(false);
-  };
-  interface AppSnackBarProp {
-    open: boolean;
-  }
   return (
-    <div>
-      <Button onClick={handleClick}>Open Snackbar</Button>
+    <Box>
       <Snackbar
-        open={open}
+        open={openState}
         autoHideDuration={3000}
-        onClose={handleClose}
-        message="This Snackbar will be dismissed in 3 seconds."
-      />
-    </div>
+        onClose={() => dispatch(hideSnackBar())}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => dispatch(hideSnackBar())}
+          severity={successOrError}
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {messages}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 }
