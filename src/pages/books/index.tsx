@@ -120,7 +120,7 @@ export default function BooksPage() {
           showSnackBar({
             openState: true,
             successOrError: "success",
-            messages: "Success Add Book",
+            messages: "Book Added Successfully",
           })
         );
 
@@ -131,7 +131,7 @@ export default function BooksPage() {
           showSnackBar({
             openState: true,
             successOrError: "error",
-            messages: "Upload Failed Add Book",
+            messages: "Upload Failed:During Add Book",
           })
           //  hideSnackBar()
         );
@@ -173,7 +173,7 @@ export default function BooksPage() {
         showSnackBar({
           openState: true,
           successOrError: "success",
-          messages: "Book deleted!",
+          messages: "Book Deleted Successfully!",
         })
       );
       if (res.ok) {
@@ -185,7 +185,7 @@ export default function BooksPage() {
           showSnackBar({
             openState: true,
             successOrError: "error",
-            messages: "Book Delete failed!",
+            messages: "Book Delete Failed!",
           })
         );
       }
@@ -203,7 +203,7 @@ export default function BooksPage() {
         showSnackBar({
           openState: true,
           successOrError: "success",
-          messages: "Book QR Downloaded!",
+          messages: "Book QR Downloaded Successfully!",
         })
       );
       if (!response.ok) {
@@ -222,7 +222,7 @@ export default function BooksPage() {
         showSnackBar({
           openState: true,
           successOrError: "success",
-          messages: "Book QR Downloaded!",
+          messages: "Book QR Downloaded Successfully!",
         })
       );
     } catch (error) {

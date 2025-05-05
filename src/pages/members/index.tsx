@@ -102,7 +102,7 @@ export default function MembersPage() {
     if (!validatePhone(newMember.phone)) {
       setErrors((prev) => ({
         ...prev,
-        phone: "Invalid phone number format:eg.09-000 111 222",
+        phone: "Invalid phone number format:eg.09 000 111 222",
       }));
       isValid = false;
     } else {
@@ -133,6 +133,13 @@ export default function MembersPage() {
           return;
         }
         dispatch(addMembers(member));
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "success",
+            messages: "Add Member Successfully",
+          })
+        );
         setNewMember({ name: "", email: "", phone: "" }); // Reset form
       } catch (error) {
         console.error("Error downloading member card:", error);
@@ -182,6 +189,13 @@ export default function MembersPage() {
         return;
       }
       dispatch(removeMembers(memberToDelete));
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Member Deleted Successfully",
+        })
+      );
       setOpenDelete(false);
     }
   };

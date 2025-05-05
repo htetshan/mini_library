@@ -71,7 +71,7 @@ const EditBook = ({ book }: Props) => {
           showSnackBar({
             openState: true,
             successOrError: "success",
-            messages: "Book Updated",
+            messages: "Book Updated Successfully",
           })
         );
         router.push("/books"); // Redirect to the books list page

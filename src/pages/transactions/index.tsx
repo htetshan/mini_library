@@ -29,11 +29,17 @@ const IssueBookForm: React.FC = () => {
   const router = useRouter();
   const handleIssue = async () => {
     if (!issueMember || !issueBook) {
-      alert("Invalid Member ID or Book ID.");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: "Invalid Member ID or Book ID.",
+        })
+      );
       return;
     }
 
-    const res = await fetch(`${config.api_url}/transactions/borrow`, {
+    const res = await fetch(`${config.api_url}/transactions/issue`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ memberId: issueMember.id, bookId: issueBook.id }),
@@ -52,18 +58,33 @@ const IssueBookForm: React.FC = () => {
           messages: "Book issued successfully!",
         })
       );
-      alert("Book issued successfully!");
+
       dispatch(updateBook(updateIssue));
       dispatch(setTransactions(transactions));
       router.push("/books");
     } else {
-      alert(dataFromServer.error || "Error issuing book.");
+      //console.log(dataFromServer.error);
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: `${dataFromServer.error}`,
+        })
+      );
+
+      //  alert(dataFromServer.error || "Error issuing book.");
     }
   };
 
   const handleReturn = async () => {
     if (!returnMember || !returnBook) {
-      alert("invalid member Id or book id");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: "Invalid Member ID or Book ID.",
+        })
+      );
       return;
     }
 
@@ -79,13 +100,27 @@ const IssueBookForm: React.FC = () => {
     const dataFromServer = await res.json();
     const { updateReturn, transactions } = dataFromServer;
     if (res.ok) {
-      alert("Book returned successfully!");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Book returned successfully!",
+        })
+      );
+
       dispatch(updateBook(updateReturn));
       dispatch(setTransactions(transactions));
 
       router.push("/books");
     } else {
-      alert(dataFromServer.error || "Error returning book.");
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "error",
+          messages: `${dataFromServer.error}`,
+        })
+      );
+      //alert(dataFromServer.error || "Error returning book.");
     }
   };
 

@@ -7,6 +7,7 @@ import { Box, List, ListItem, ListItemText, Typography } from "@mui/material";
 const History = () => {
   const dispatch = useAppDispatch();
   const { transactions } = useAppSelector((state) => state.transactions);
+  console.log(transactions);
 
   useEffect(() => {
     const fetchTransactions = async () => {

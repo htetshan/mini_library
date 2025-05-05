@@ -69,7 +69,7 @@ const EditMember = ({ member }: Props) => {
         showSnackBar({
           openState: true,
           successOrError: "success",
-          messages: "Member Updated",
+          messages: "Member Updated Successfully",
         })
       );
       router.push("/members");
