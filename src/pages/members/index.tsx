@@ -1,8 +1,13 @@
 import NewLayoutApp from "@/components/NewLayoutApp";
 import { config } from "@/config";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { addMembers, removeMembers } from "@/store/slices/memberSlice";
+import {
+  addMembers,
+  createNewMemberThunk,
+  removeMembers,
+} from "@/store/slices/memberSlice";
 import { showSnackBar } from "@/store/slices/snackBarSlice";
+import { MemberType } from "@/types/member";
 import {
   Box,
   Button,
@@ -25,18 +30,12 @@ import { Member } from "@prisma/client";
 import Link from "next/link";
 import { useState } from "react";
 
-interface User {
-  name: string;
-  email: string;
-  phone: string;
-}
-
 export default function MembersPage() {
   const dispatch = useAppDispatch();
   const { members } = useAppSelector((state) => state.members);
   const displayMembers = members;
   const { books } = useAppSelector((state) => state.books);
-  const [newMember, setNewMember] = useState<User>({
+  const [newMember, setNewMember] = useState<MemberType>({
     name: "",
     email: "",
     phone: "",
@@ -110,41 +109,22 @@ export default function MembersPage() {
     }
 
     if (isValid) {
-      try {
-        const response = await fetch(`${config.api_url}/members`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
+      dispatch(
+        createNewMemberThunk({
+          ...newMember,
+          onSuccess: () => {
+            dispatch(
+              showSnackBar({
+                openState: true,
+                successOrError: "success",
+                messages: "Add Member Successfully",
+              })
+            );
           },
-          body: JSON.stringify(newMember),
-        });
-        const dataFromServer = await response.json();
-        const { member } = dataFromServer;
-        if (!response.ok) {
-          // Handle API error
-          dispatch(
-            showSnackBar({
-              openState: true,
-              successOrError: "error",
-              messages:
-                "A member with this email or phone number already exists.",
-            })
-          );
-          return;
-        }
-        dispatch(addMembers(member));
-        dispatch(
-          showSnackBar({
-            openState: true,
-            successOrError: "success",
-            messages: "Add Member Successfully",
-          })
-        );
-        setNewMember({ name: "", email: "", phone: "" }); // Reset form
-      } catch (error) {
-        console.error("Error downloading member card:", error);
-        alert("Failed to create member");
-      }
+        })
+      );
+
+      setNewMember({ name: "", email: "", phone: "" }); // Reset form
     }
   };
 

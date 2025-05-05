@@ -1,5 +1,9 @@
+import { config } from "@/config";
+import { baseOptionType } from "@/types/baseOption";
 import { Member } from "@prisma/client";
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { showSnackBar } from "./snackBarSlice";
+import { MemberType } from "@/types/member";
 
 interface MemberSliceType {
   members: Member[];
@@ -11,6 +15,41 @@ const initialState: MemberSliceType = {
   isloading: false,
   error: null,
 };
+interface newMemberParamType extends MemberType, baseOptionType {}
+export const createNewMemberThunk = createAsyncThunk(
+  "memberSlice/createNewMemberThunk",
+  async (newMenuParam: newMemberParamType, thunkApi) => {
+    try {
+      const { onSuccess, onError, ...payload } = newMenuParam;
+      const response = await fetch(`${config.api_url}/members`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const dataFromServer = await response.json();
+      const { member } = dataFromServer;
+      if (!response.ok) {
+        //onError && onError();
+        thunkApi.dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages:
+              "A member with this email or phone number already exists.",
+          })
+        );
+        return;
+      }
+      onSuccess && onSuccess();
+      thunkApi.dispatch(addMembers(member));
+    } catch (error) {
+      console.error("Error downloading member card:", error);
+      alert("Failed to create member");
+    }
+  }
+);
 
 export const memeberSlice = createSlice({
   name: "memberSlice",
