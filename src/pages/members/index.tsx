@@ -2,6 +2,7 @@ import NewLayoutApp from "@/components/NewLayoutApp";
 import { config } from "@/config";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { addMembers, removeMembers } from "@/store/slices/memberSlice";
+import { showSnackBar } from "@/store/slices/snackBarSlice";
 import {
   Box,
   Button,
@@ -33,6 +34,7 @@ interface User {
 export default function MembersPage() {
   const dispatch = useAppDispatch();
   const { members } = useAppSelector((state) => state.members);
+  const displayMembers = members;
   const { books } = useAppSelector((state) => state.books);
   const [newMember, setNewMember] = useState<User>({
     name: "",
@@ -108,25 +110,52 @@ export default function MembersPage() {
     }
 
     if (isValid) {
-      const response = await fetch(`${config.api_url}/members`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newMember),
-      });
-      const dataFromServer = await response.json();
-      const { member } = dataFromServer;
-      dispatch(addMembers(member));
-      setNewMember({ name: "", email: "", phone: "" }); // Reset form
+      try {
+        const response = await fetch(`${config.api_url}/members`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newMember),
+        });
+        const dataFromServer = await response.json();
+        const { member } = dataFromServer;
+        if (!response.ok) {
+          // Handle API error
+          dispatch(
+            showSnackBar({
+              openState: true,
+              successOrError: "error",
+              messages:
+                "A member with this email or phone number already exists.",
+            })
+          );
+          return;
+        }
+        dispatch(addMembers(member));
+        setNewMember({ name: "", email: "", phone: "" }); // Reset form
+      } catch (error) {
+        console.error("Error downloading member card:", error);
+        alert("Failed to create member");
+      }
     }
   };
 
   const handleDeleteMember = async () => {
     if (memberToDelete !== null) {
-      const BorrowedMember = books.find((item) => item.id === memberToDelete);
+      const BorrowedMember = books.find(
+        (item) => item.borrowedMemberID === memberToDelete
+      );
       if (BorrowedMember) {
-        alert("Cannot delete a member that is currently borrowed book.");
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages: "Cannot delete a member that is currently borrowed book.",
+          }),
+          setOpenDelete(false)
+        );
+        return;
         // Exit the function
       }
       const response = await fetch(
@@ -139,7 +168,19 @@ export default function MembersPage() {
           body: JSON.stringify(memberToDelete),
         }
       );
-
+      const dataFromServer = await response.json();
+      if (!response.ok) {
+        // Handle API error
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages: "Cannot delete a member that is currently borrowed book.",
+          }),
+          setOpenDelete(false)
+        );
+        return;
+      }
       dispatch(removeMembers(memberToDelete));
       setOpenDelete(false);
     }
@@ -240,7 +281,7 @@ export default function MembersPage() {
               //overflowY: "auto",
             }}
           >
-            {members.map((member) => (
+            {displayMembers.map((member) => (
               <Card key={member.id} sx={{ maxWidth: 345 }}>
                 <CardContent>
                   <Typography gutterBottom variant="h6" component="div">

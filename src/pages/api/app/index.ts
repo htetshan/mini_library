@@ -10,9 +10,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  const members = await prisma.member.findMany();
-  const books = await prisma.book.findMany();
+  const members = await prisma.member.findMany({
+    where: { isArchived: false },
+  });
+  const books = await prisma.book.findMany({ where: { isArchived: false } });
   const transactions = await prisma.transaction.findMany({
+    where: { isArchived: false },
     include: {
       book: true, // Include book details
       member: true, // Include member details

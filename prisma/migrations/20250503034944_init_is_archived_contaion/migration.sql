@@ -7,6 +7,7 @@ CREATE TABLE "Book" (
     "imageUrl" TEXT,
     "bookID" TEXT,
     "isAvailable" BOOLEAN NOT NULL DEFAULT true,
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
     "borrowedMemberID" INTEGER,
 
     CONSTRAINT "Book_pkey" PRIMARY KEY ("id")
@@ -20,6 +21,7 @@ CREATE TABLE "Member" (
     "phone" TEXT NOT NULL,
     "address" TEXT,
     "memberID" TEXT,
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Member_pkey" PRIMARY KEY ("id")
 );
@@ -31,6 +33,7 @@ CREATE TABLE "Transaction" (
     "bookId" INTEGER NOT NULL,
     "issuedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "returnedAt" TIMESTAMP(3),
+    "isArchived" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );

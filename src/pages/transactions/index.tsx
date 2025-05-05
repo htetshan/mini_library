@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import NewLayoutApp from "@/components/NewLayoutApp";
 import { config } from "@/config";
 import { setTransactions } from "@/store/slices/transactionSlice";
+import { showSnackBar } from "@/store/slices/snackBarSlice";
 
 const IssueBookForm: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -44,6 +45,13 @@ const IssueBookForm: React.FC = () => {
     const { updateIssue, transactions } = dataFromServer;
 
     if (res.ok) {
+      dispatch(
+        showSnackBar({
+          openState: true,
+          successOrError: "success",
+          messages: "Book issued successfully!",
+        })
+      );
       alert("Book issued successfully!");
       dispatch(updateBook(updateIssue));
       dispatch(setTransactions(transactions));

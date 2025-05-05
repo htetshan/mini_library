@@ -150,8 +150,16 @@ export default function BooksPage() {
 
       // Check if the book is not available
       if (book && !book.isAvailable) {
-        alert("Cannot delete a book that is currently borrowed.");
-        return; // Exit the function
+        dispatch(
+          showSnackBar({
+            openState: true,
+            successOrError: "error",
+            messages: "Cannot delete a book that is currently borrowed.",
+          }),
+          setOpenDelete(false)
+        );
+        return;
+        // Exit the function
       }
 
       const res = await fetch(`${config.api_url}/books?id=${bookToDelete}`, {

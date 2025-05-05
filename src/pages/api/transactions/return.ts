@@ -42,10 +42,14 @@ export default async function handler(
         where: { id: bookId },
         data: { isAvailable: true, borrowedMemberID: null },
       });
+      const transactions = await prisma.transaction.findMany({
+        include: {
+          book: true, // Include book details
+          member: true, // Include member details
+        },
+      });
 
-      return res
-        .status(200)
-        .json({ message: "Book returned successfully.", updateReturn });
+      return res.status(200).json({ updateReturn, transactions });
     } catch (error) {
       console.error("Error returning book:", error);
       return res.status(500).json({ error: "Internal server error." });

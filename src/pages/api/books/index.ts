@@ -142,8 +142,9 @@ export default async function handler(
       }
 
       // Delete the book from the database
-      const deletedBook = await prisma.book.delete({
+      const deletedBook = await prisma.book.update({
         where: { id: Number(id) },
+        data: { isArchived: true },
       });
 
       return res

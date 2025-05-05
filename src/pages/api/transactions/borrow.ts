@@ -62,7 +62,6 @@ export default async function handler(
       });
 
       return res.status(200).json({
-        message: "Transaction successful.",
         transactions,
         updateIssue,
       });

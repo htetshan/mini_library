@@ -8,35 +8,40 @@ datasource db {
 }
 
 model Book {
-  id       Int     @id @default(autoincrement())
-  name     String
-  author   String
-  category String
-  imageUrl String?
-  bookID   String? @unique
-  isAvailable  Boolean       @default(true)
-  borrowedMemberID   Int?
-  transactions Transaction[]
+  id               Int           @id @default(autoincrement())
+  name             String
+  author           String
+  category         String
+  imageUrl         String?
+  bookID           String?       @unique
+  isAvailable      Boolean       @default(true)
+  isArchived       Boolean       @default(false)
+  borrowedMemberID Int?
+  transactions     Transaction[]
 }
 
 model Member {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  phone        String        @unique // Changed from Int to String
-  address      String? // Added a new optional column
-  memberID     String?       @unique
+  id         Int     @id @default(autoincrement())
+  name       String
+  email      String  @unique
+  phone      String  @unique // Changed from Int to String
+  address    String? // Added a new optional column
+  memberID   String? @unique
+  isArchived Boolean @default(false)
+
   transactions Transaction[]
 }
 
 model Transaction {
-  id         Int       @id @default(autoincrement())
-  member     Member    @relation(fields: [memberId], references: [id])
-  memberId   Int
-  book       Book      @relation(fields: [bookId], references: [id])
-  bookId     Int
+  id       Int    @id @default(autoincrement())
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId Int
+  book     Book   @relation(fields: [bookId], references: [id])
+  bookId   Int
+
   issuedAt   DateTime  @default(now())
   returnedAt DateTime? // null = still borrowed
+  isArchived Boolean   @default(false)
 
   @@unique([bookId, returnedAt])
 }

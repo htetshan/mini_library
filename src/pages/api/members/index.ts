@@ -29,19 +29,42 @@ export default async function handler(
   } else if (method === "POST") {
     const { name, email, phone } = req.body;
 
+    // Validate input
     const isInvalid = !name || !email || !phone;
     if (isInvalid) {
       return res.status(400).json({ error: "All fields are required" });
     }
 
-    // 🔸 Generate unique memberID here
-    const memberID = await generateRandomMemberID();
+    try {
+      // Check if email or phone already exists
+      const existingMember = await prisma.member.findFirst({
+        where: {
+          OR: [
+            { email }, // Check for duplicate email
+            { phone }, // Check for duplicate phone
+          ],
+        },
+      });
 
-    const member = await prisma.member.create({
-      data: { name, email, phone, memberID },
-    });
+      if (existingMember) {
+        return res.status(400).json({
+          error: "A member with this email or phone number already exists.",
+        });
+      }
 
-    return res.status(200).json({ member });
+      // Generate unique memberID
+      const memberID = await generateRandomMemberID();
+
+      // Create the new member
+      const member = await prisma.member.create({
+        data: { name, email, phone, memberID },
+      });
+
+      return res.status(200).json({ member });
+    } catch (error) {
+      console.error("Error creating member:", error);
+      return res.status(500).json({ error: "Internal server error." });
+    }
   } else if (method === "PUT") {
     const { id, ...payload } = req.body;
     const { name, email, phone } = payload;
@@ -63,9 +86,15 @@ export default async function handler(
     return res.status(200).json({ updateMemberDb });
   } else if (method === "DELETE") {
     const memberToDelete = Number(req.query.id) as number;
-    console.log("internal error:", memberToDelete);
+    const borrowedMem = await prisma.book.findFirst({
+      where: { borrowedMemberID: memberToDelete },
+    });
+    if (borrowedMem)
+      return res.status(400).json({
+        error: "Cannot delete a member that is currently borrowed book.",
+      });
 
-    if (memberToDelete) return res.status(200).send("error");
+    //if (memberToDelete) return res.status(200).send("error");
     // Check if the member exists
     const exist = await prisma.member.findFirst({
       where: { id: memberToDelete },
@@ -86,8 +115,9 @@ export default async function handler(
     }
 
     // Proceed with deletion if no borrowed books are found
-    const memberDeleted = await prisma.member.delete({
+    const memberDeleted = await prisma.member.update({
       where: { id: memberToDelete },
+      data: { isArchived: true },
     });
 
     return res.status(200).json({ message: "Member deleted successfully." });
