@@ -283,11 +283,9 @@ export default function BooksPage() {
                 accept="image/*"
                 onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
               />
-              {fileError && (
-                <Typography variant="body2" color="error">
-                  {fileError}
-                </Typography>
-              )}
+              <Typography variant="body2" color="error">
+                {fileError}
+              </Typography>
             </Box>
             <Button variant="contained" color="primary" onClick={handleAddBook}>
               Add Book
